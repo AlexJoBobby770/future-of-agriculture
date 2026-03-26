@@ -18,14 +18,24 @@ LEACHING_RAIN_THRESHOLD_MM = 10   # Heavy rain triggers nitrogen leach
 LEACHING_N_LOSS_FRACTION   = 0.10 # 10% N loss
 
 
-def get_live_score(price_slope: float = 0.0) -> float:
+def get_live_score(
+    price_slope: float = 0.0,
+    n_override: float = None,
+    p_override: float = None,
+    k_override: float = None,
+) -> float:
     """
-    Reads integration/data/live_sensors.json and returns the
-    Crop Success Score (0–100) including any leaching adjustment.
+    Returns the Crop Success Score (0–100) including any leaching adjustment.
+
+    When n/p/k overrides are provided (e.g. from demo slider values),
+    those values are used instead of the live_sensors.json file.
 
     Args:
         price_slope: Pass the slope from analyze_price_trend() if available.
                      Defaults to 0 (stable market) when called standalone.
+        n_override:  If set, use this N value instead of the sensor file.
+        p_override:  If set, use this P value instead of the sensor file.
+        k_override:  If set, use this K value instead of the sensor file.
 
     Returns:
         float — the success score, or 0.0 if sensor data is unavailable.
@@ -37,11 +47,12 @@ def get_live_score(price_slope: float = 0.0) -> float:
         with open(sensor_path) as f:
             data = json.load(f)
     except FileNotFoundError:
-        return 0.0
+        data = {}
 
-    n = float(data.get("n", 50))
-    p = float(data.get("p", 50))
-    k = float(data.get("k", 50))
+    # Use overrides from the API request when provided, fall back to sensor file
+    n = float(n_override) if n_override is not None else float(data.get("n", 50))
+    p = float(p_override) if p_override is not None else float(data.get("p", 50))
+    k = float(k_override) if k_override is not None else float(data.get("k", 50))
     rain_mm   = float(data.get("rain_mm", 0))          # If IoT sends rain data
     soil_moist = float(data.get("soil_moisture", 50))
 

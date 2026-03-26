@@ -81,6 +81,33 @@ def get_sensors():
         "ph": 6.2, "temperature": 30.0, "soil_moisture": 35.0, "rain_mm": 0.0
     }
 
+
+@app.get("/weather", tags=["System"])
+def get_weather():
+    """Returns live weather data including 7-day rain forecast, ET rate, and current conditions."""
+    weather_path = os.path.join(
+        os.path.dirname(__file__), "..", "integration", "data", "live_weather.json"
+    )
+    if os.path.exists(weather_path):
+        try:
+            with open(weather_path, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {
+        "timestamp": "OFFLINE",
+        "current": {
+            "temp_c": 30.0,
+            "soil_moisture_pct": 35.0,
+            "evap_rate_mm": 0.3,
+            "sunlight_w_m2": 450.0,
+            "rain": 0.0,
+        },
+        "rain_forecast": [0.0, 2.0, 5.0, 0.0, 10.0, 0.0, 0.0],
+        "status": "OFFLINE",
+    }
+
+
 @app.get("/health", tags=["System"])
 def health_check():
     return {"status": "healthy"}

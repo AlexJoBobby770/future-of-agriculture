@@ -357,7 +357,12 @@ def recommend_rotation(
     # ── 3. MEMBER 2 DATA-SCIENCE ENGINES ──────────────────────────────────────
     analysis    = analyze_price_trend(price_history)
     price_slope = analysis["slope"]
-    soil_health = get_live_score(price_slope=price_slope)
+    soil_health = get_live_score(
+        price_slope=price_slope,
+        n_override=data.nitrogen,
+        p_override=data.phosphorus,
+        k_override=data.potassium,
+    )
     adjusted_n, leaching_msg = calculate_leaching_impact(data.nitrogen, live_rain)
 
     # ── 4. ENCYCLOPEDIA ────────────────────────────────────────────────────────
