@@ -1,70 +1,73 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Header from './components/Header';
+import Dashboard from './components/Dashboard';
+import Market from './components/Market';
 import Navbar from './components/Navbar';
-import ResilienceCard from './components/ResilienceCard';
-import PriceRadar from './components/PriceRadar';
-import CropSearch from './components/CropSearch';
+import Crops from './components/Crops';
+import Predict from './components/Predict';
 import './App.css';
 
-function App() {
-  // Mocking the integration with Member 1's API (schemas.py)
-  const [prediction, setPrediction] = useState({
-    days_until_depletion: 4.2,
-    status: "Drought Warning",
-    drought_mode: false
-  });
+export default function App() {
+  // This state tells the app which screen to show
+  const [activeTab, setActiveTab] = useState('home');
 
-  const [marketData, setMarketData] = useState([
-    { crop: "Rubber", current_price: 182, trend: "Upward", risk_level: "Low" },
-    { crop: "Coconut", current_price: 42, trend: "Stable", risk_level: "Medium" }
-  ]);
+  // --- THE DATA ---
+  // Right now this is mock data. Later, you will replace these 
+  // variables with a 'fetch' command to Member 1's backend API.
+
+  const currentWaterDays = 4;
+  const currentSoilNPK = { n: 46, p: 36, k: 49 };
+
+  const liveMarketData = [
+    { crop: "Rubber", price: 182, trend: "▲ +2.4%", risk: "Low" },
+    { crop: "Coconut", price: 42, trend: "▼ -1.1%", risk: "Medium" },
+    { crop: "Cardamom", price: 2150, trend: "▲ +5.2%", risk: "High" },
+    { crop: "Black Pepper", price: 540, trend: "➖ 0.0%", risk: "Low" }
+  ];
 
   return (
     <div className="app-container">
-      <header className="main-header">
-        <h1>AGRI-RESILIENT AI</h1>
-        <div className="location-badge">📍 KOCHI DISTRICT</div>
-      </header>
 
-      <main className="dashboard">
-        {/* SECTION 1: RESILIENCE DASHBOARD */}
-        <section className="section">
-          <h2 className="section-title">Resource Timers</h2>
-          <div className="grid-2">
-            <ResilienceCard
-              label="Water"
-              days={prediction.days_until_depletion}
-              status={prediction.status}
-              type="water"
-            />
-            <ResilienceCard
-              label="Soil NPK"
-              days={12}
-              status="Optimal"
-              type="soil"
-            />
-          </div>
-        </section>
+      {/* 1. The Top Branding Bar */}
+      <Header />
 
-        {/* SECTION 2: PRICE RADAR */}
-        <section className="section">
-          <h2 className="section-title">Market Radar</h2>
-          <div className="price-container">
-            {marketData.map((data, index) => (
-              <PriceRadar key={index} {...data} />
-            ))}
-          </div>
-        </section>
+      {/* 2. The Main Scrollable Content Area */}
+      <main className="main-content">
 
-        {/* SECTION 3: CROP DISCOVERY */}
-        <section className="section">
-          <h2 className="section-title">Agri-Encyclopedia</h2>
-          <CropSearch />
-        </section>
+        {/* If the user is on 'home', show the gauges */}
+        {activeTab === 'home' && (
+          <Dashboard
+            waterDays={currentWaterDays}
+            soilNPK={currentSoilNPK}
+          />
+        )}
+
+        {/* If the user is on 'market', show the prices */}
+        {activeTab === 'market' && (
+          <Market
+            marketData={liveMarketData}
+          />
+        )}
+
+        {/* If the user is on 'crops', show the encyclopedia */}
+        {activeTab === 'crops' && (
+          <Crops />
+        )}
+
+        {activeTab === 'predict' && (
+          <Predict />
+        )}
+
+
+
       </main>
 
-      <Navbar />
+      {/* 3. The Bottom Navigation Bar */}
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+
     </div>
   );
 }
-
-export default App;
