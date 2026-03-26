@@ -27,17 +27,16 @@ def predict_depletion(data: PredictRequest) -> PredictResponse:
     To plug in an ML model later:
       Replace _engine.get_days_to_depletion(...) with your model.predict(features)
     """
-    # Average the rain forecast so the engine gets a single daily value
-    avg_rain = sum(data.rain_forecast) / len(data.rain_forecast)
-
+    # Pass the full 7-day forecast array to the upgraded engine
     days = _engine.get_days_to_depletion(
         current_v=data.water_level,
         daily_usage=data.daily_usage,
         et_rate=data.evapotranspiration_rate,
-        rain_forecast=avg_rain,
+        rain_forecast=data.rain_forecast,
     )
 
     # Net loss figure for transparency
+    avg_rain = sum(data.rain_forecast) / len(data.rain_forecast)
     net_daily_loss = (data.daily_usage + data.evapotranspiration_rate) - avg_rain
     avg_daily_net_loss = round(max(0, net_daily_loss), 2)
 

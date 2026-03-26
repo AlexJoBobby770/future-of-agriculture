@@ -1,31 +1,12 @@
-
-import json
-import random
-
-crops = [
-    "Wheat",
-    "Rice",
-    "Corn",
-    "Soybeans",
-    "Legumes"
-]
-market_data = {}
-
-for crop in crops:
-    # Generate 30 days of prices with a slight upward or downward trend
-    base_price = random.randint(100,
-500)
-    trend = random.uniform(-2,
-2)
-    prices = [round(base_price + (i * trend) + random.uniform(-5,
-    5),
-    2) for i in range(30)
-]
-    market_data[crop
-] = prices
-
-with open("integration/data/mock_market_data.json",
-"w") as f:
-    json.dump(market_data, f, indent=4)
-
-print("Mock Market Data Generated!")
+{
+    "Wheat": [210, 215, 218, 220, 222, 225, 228, 230, 232, 235, 238, 240, 242, 245],
+    "Rice": [300, 300, 310, 300, 300, 310, 300, 300, 310, 300, 300, 310, 300, 300],
+    "Corn": [180, 185, 182, 188, 186, 190, 192, 195, 190, 198, 200, 202, 198, 205],
+    "Soybeans": [450, 460, 440, 470, 460, 480, 490, 500, 480, 510, 520, 530, 510, 540],
+    "Legumes": [120, 118, 115, 112, 110, 108, 105, 102, 100, 98, 95, 92, 90, 88],
+    "Tomato": [18, 19, 21, 20, 22, 25, 24, 26, 27, 25, 28, 30, 29, 31],
+    "Onion": [35, 33, 30, 28, 26, 25, 24, 22, 21, 20, 19, 18, 17, 16],
+    "Groundnut": [55, 54, 56, 55, 57, 56, 58, 57, 59, 58, 60, 59, 61, 62],
+    "Cotton": [65, 63, 61, 60, 58, 57, 55, 54, 52, 51, 50, 49, 47, 46],
+    "Maize": [15, 16, 15, 17, 16, 18, 17, 19, 18, 20, 19, 21, 20, 22]
+}
