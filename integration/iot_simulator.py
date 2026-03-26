@@ -35,6 +35,7 @@ class AgriIoTSimulator:
             self.phosphorus -= 0.02
             self.potassium -= 0.08
 
+<<<<<<< HEAD
         # 3. PH FLUCTUATION
         # Rain or fertilization causes small shifts in pH.
         self.ph += random.uniform(-0.01, 0.01)
@@ -51,6 +52,39 @@ class AgriIoTSimulator:
         
         # Step 2: Evolve the soil based on that reality
         self.simulate_soil_dynamics(reality)
+=======
+    def simulate_physics(self, weather):
+        """Simulates Nitrogen leaching and Nutrient consumption."""
+        current = weather.get('current', {})
+        # 1. Leaching (If soil is saturated)
+        if current.get('soil_moisture_pct', 0) > 75:
+            self.n -= random.uniform(0.1, 0.3)
+        
+        # 2. Consumption (If sunny)
+        if current.get('sunlight_w_m2', 0) > 500:
+            self.n -= 0.05
+            self.k -= 0.08
+        
+        # 3. Small drift for pH
+        self.ph += random.uniform(-0.02, 0.02)
+        
+        # 4. Hackathon "Wow-Factor" Sensor Jitter (Micro-fluctuations)
+        self.n += random.uniform(-0.3, 0.3)
+        self.p += random.uniform(-0.1, 0.1)
+        self.k += random.uniform(-0.2, 0.2)
+        
+        # Inject micro-jitter into the weather object so the UI Temperature/Moisture gauges dance
+        if 'current' in weather:
+            weather['current']['temp_c'] = round(weather['current'].get('temp_c', 30.0) + random.uniform(-0.1, 0.1), 1)
+            weather['current']['soil_moisture_pct'] = round(weather['current'].get('soil_moisture_pct', 35.0) + random.uniform(-0.5, 0.5), 1)
+            # Ensure moisture stays in bounds
+            weather['current']['soil_moisture_pct'] = max(0, min(100, weather['current']['soil_moisture_pct']))
+        
+        self.n = max(10, min(self.n, 150)) # Prevent negative values and unrealistic spikes
+        self.p = max(5, min(self.p, 100))
+        self.k = max(10, min(self.k, 100))
+        self.ph = max(4.0, min(self.ph, 9.0))
+>>>>>>> main
 
         # Step 3: Package the JSON for Member 1 & 2
         return {

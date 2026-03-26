@@ -42,6 +42,10 @@ class KochiAgriFetcher:
             h = data['hourly']
             d = data['daily']
 
+            moisture_val = data['hourly']['soil_moisture_0_to_7cm'][0]
+            if moisture_val is None:
+                moisture_val = 0.35
+
             return {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "current": {

@@ -31,6 +31,7 @@ from backend.models.schemas import RotationRequest, RotationResponse
 from data_science.success_matrix import get_live_score, calculate_leaching_impact
 from data_science.price_predictor import analyze_price_trend
 from data_science.model_inference import match_best_crop
+from data_science.climatology_db import ClimaticMatchEngine
 
 
 # ── Encyclopedia path ──────────────────────────────────────────────────────────
@@ -389,6 +390,11 @@ def recommend_rotation(
                 if adjusted_n < data.nitrogen:
                     reason += f" | {leaching_msg}"
 
+    # ── 5.5 SIMULATION OVERRIDE ────────────────────────────────────────────────
+    if data.target_crop and data.target_crop != "AI Recommended":
+        crop = data.target_crop
+        reason = f"Simulation Override: Direct climate evaluation for the user-selected crop '{crop}'."
+
     # ── 6. NEXT ACTION ─────────────────────────────────────────────────────────
     if data.soil_ph < ACIDIC_PH_THRESHOLD:
         action = (
@@ -429,25 +435,37 @@ def recommend_rotation(
     uncertainty = knn_result["uncertainty_flag"]
     weather_context = knn_result["weather_context"]
 
+    # ── 7.5 CLIMATOLOGY ENGINE (Member 2) ───────────────────────────────────
+    climatology_engine = ClimaticMatchEngine()
+    cli_result = climatology_engine.evaluate_crop(crop, data.region, data.month)
+    
+    climate_suitability_score = cli_result["score"]
+    seasonal_warning = cli_result["warning"]
+    
+    if cli_result["do_not_plant"]:
+        action = f"⛔ CLIMATE VETO: {seasonal_warning}"
+
     # ── 8. MATHEMATICAL YIELD PREDICTION ────────────────────────────────────────
-    # Yield potential is a weighted blend of AI Confidence (60%) + Soil Health (40%)
-    yield_potential_pct = (confidence * 0.6) + ((soil_health / 100.0) * 0.4)
+    # Yield potential is a weighted blend of AI Confidence (40%) + Soil Health (30%) + Climate Score (30%)
+    yield_potential_pct = (confidence * 0.4) + ((soil_health / 100.0) * 0.3) + (climate_suitability_score * 0.3)
     yield_potential_pct = min(1.0, max(0.1, yield_potential_pct)) # bound 10%-100%
     
     base_yield = BASE_YIELDS.get(crop, 5.0)
-    expected_yield = round(base_yield * yield_potential_pct, 2)
-    yield_pct_display = round(yield_potential_pct * 100, 1)
+    expected_yield = round(base_yield * float(yield_potential_pct), 2)
+    yield_pct_display = round(float(yield_potential_pct) * 100, 1)
 
     # 9. BUILD RESPONSE ─────────────────────────────────────────────────────────────────
     return RotationResponse(
         recommended_crop=crop,
         reason=reason,
-        soil_health_score=round(soil_health, 1),
-        confidence_score=confidence,
+        soil_health_score=round(float(soil_health), 1),
+        confidence_score=float(confidence),
         uncertainty_flag=uncertainty,
         weather_context=weather_context,
         expected_yield_tons_ha=expected_yield,
         yield_potential_pct=yield_pct_display,
+        climate_suitability_score=round(float(climate_suitability_score), 2),
+        seasonal_warning=seasonal_warning,
         next_action=action,
         is_live_data=sensors_online,
     )

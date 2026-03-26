@@ -42,9 +42,9 @@ class PredictResponse(BaseModel):
 # ─────────────────────────────────────────────
 
 class RotationRequest(BaseModel):
-    nitrogen: float = Field(..., ge=0, le=100, description="Nitrogen % in soil")
-    phosphorus: float = Field(..., ge=0, le=100, description="Phosphorus % in soil")
-    potassium: float = Field(..., ge=0, le=100, description="Potassium % in soil")
+    nitrogen: float = Field(..., ge=0, le=1000, description="Nitrogen level in soil")
+    phosphorus: float = Field(..., ge=0, le=1000, description="Phosphorus level in soil")
+    potassium: float = Field(..., ge=0, le=1000, description="Potassium level in soil")
     soil_ph: float = Field(..., ge=0, le=14, description="Current soil pH (0–14)")
     previous_crop_id: Optional[str] = Field(
         default=None,
@@ -54,6 +54,9 @@ class RotationRequest(BaseModel):
     soil_type: Optional[str] = Field(default="Loamy", description="e.g. Loamy, Sandy, Clay")
     current_moisture: Optional[float] = Field(default=None, ge=0, le=100, description="Current soil moisture %")
     current_rain: Optional[float] = Field(default=None, ge=0, description="Current rainfall in mm")
+    month: Optional[int] = Field(default=1, ge=1, le=12, description="Current month (1-12) for historical climate norms")
+    region: Optional[str] = Field(default="Kochi", description="Region name (e.g. Kochi, Palakkad) for climatology")
+    target_crop: Optional[str] = Field(default=None, description="Optional override to force evaluation of a specific crop")
 
     class Config:
         json_schema_extra = {
@@ -79,6 +82,8 @@ class RotationResponse(BaseModel):
     weather_context: Optional[str] = None   # Climate context applied to KNN model
     expected_yield_tons_ha: float # Predicted yield based on AI confidence and soil health
     yield_potential_pct: float    # 0-100% indicating how close to max yield we are
+    climate_suitability_score: float # 0.0-1.0 from Climatology Engine
+    seasonal_warning: Optional[str] = None # Extreme heat/flood warning
     next_action: str              # What to do after this rotation
     is_live_data: bool            # True = live IoT sensors; False = simulated/fallback data
 

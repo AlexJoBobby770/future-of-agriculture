@@ -54,7 +54,7 @@ const ArcGauge = ({ value, max = 100, color, label, unit = '', size = 130 }) => 
 /* ----------------------------------------------------------
    Dashboard Component
    ---------------------------------------------------------- */
-const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode, liveSensors }) => {
+const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode, liveSensors, simMonth, setSimMonth, simRegion, setSimRegion, simCrop, setSimCrop, encyclopedia }) => {
     const isCritical = waterDays < 5;
     const waterPct = Math.min((waterDays / 30) * 100, 100);
 
@@ -152,7 +152,55 @@ const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode, liveSensor
             </div>
 
             {/* === AI INVESTMENT SIGNAL (LIVE from /rotation API) === */}
-            <div className="section-title">AI Investment Signal</div>
+            <div className="section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <span>AI Investment Signal</span>
+                
+                {/* CLIMATE SIMULATION CONTROLS */}
+                <div style={{ display: 'flex', gap: '8px', fontSize: '11px', fontWeight: '600', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Simulate Climate:</span>
+                    
+                    <select 
+                        value={simCrop}
+                        onChange={e => setSimCrop(e.target.value)}
+                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.3)', background: 'var(--page-bg)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
+                    >
+                        <option value="">🔮 AI Recommended</option>
+                        {encyclopedia.map(crop => (
+                            <option key={crop.id} value={crop.name}>
+                                {crop.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select 
+                        value={simRegion} 
+                        onChange={e => setSimRegion(e.target.value)}
+                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.3)', background: 'var(--page-bg)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
+                    >
+                        <option value="Kochi">Kochi (Monsoons)</option>
+                        <option value="Palakkad">Palakkad (Dry/Hot)</option>
+                    </select>
+                    
+                    <select 
+                        value={simMonth} 
+                        onChange={e => setSimMonth(parseInt(e.target.value, 10))}
+                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.3)', background: 'var(--page-bg)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
+                    >
+                        <option value="1">Jan</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Mar</option>
+                        <option value="4">Apr</option>
+                        <option value="5">May</option>
+                        <option value="6">Jun (Monsoon)</option>
+                        <option value="7">Jul</option>
+                        <option value="8">Aug</option>
+                        <option value="9">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+                </div>
+            </div>
             <div className="glass-card" style={{
                 border: 'var(--glass-border-accent)',
                 animation: 'pulseGlow 3s ease-in-out infinite',
@@ -197,6 +245,15 @@ const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode, liveSensor
                                 {rotationAdvice.uncertainty_flag && (
                                     <div style={{ fontSize: '10px', color: 'var(--danger)', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                         <span>⚠️</span> {rotationAdvice.uncertainty_flag}
+                                    </div>
+                                )}
+                                
+                                {rotationAdvice.seasonal_warning && (
+                                    <div style={{
+                                        fontSize: '11px', color: '#b91c1c', fontWeight: '800', marginBottom: '8px', 
+                                        padding: '6px 10px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '6px'
+                                    }}>
+                                        🚨 {rotationAdvice.seasonal_warning}
                                     </div>
                                 )}
                                 

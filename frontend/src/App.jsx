@@ -19,6 +19,12 @@ export default function App() {
   const [liveMarketData, setLiveMarketData] = useState([]);
   const [rotationAdvice, setRotationAdvice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [encyclopedia, setEncyclopedia] = useState([]);
+
+  // ── CLIMATE SIMULATION CONTROLS ───────────────────────────────────────────
+  const [simMonth, setSimMonth] = useState(new Date().getMonth() + 1);
+  const [simRegion, setSimRegion] = useState('Kochi');
+  const [simCrop, setSimCrop] = useState(''); // empty = AI Recommended
 
   // ── FETCH LIVE DATA ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -69,6 +75,9 @@ export default function App() {
             phosphorus: liveP,
             potassium: liveK,
             soil_ph: livePh,
+            month: simMonth,
+            region: simRegion,
+            target_crop: simCrop || undefined
           }),
         });
         
@@ -105,8 +114,21 @@ export default function App() {
       }
     }
 
+    const fetchEncyclopedia = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/encyclopedia`);
+        const data = await res.json();
+        if (data.crops && isMounted) {
+          setEncyclopedia(data.crops);
+        }
+      } catch (err) {
+        console.error('Encyclopedia fetch error:', err);
+      }
+    };
+
     // Initial fetch
     fetchAll();
+    fetchEncyclopedia();
     
     // Poll every 5s for the "Hackathon Wow Factor"
     const interval = setInterval(fetchAll, 5000);
@@ -114,7 +136,7 @@ export default function App() {
       isMounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [simMonth, simRegion, simCrop]); // Refetch if user changes sim controls
 
   const pageConfig = {
     home: {
@@ -170,6 +192,13 @@ export default function App() {
             rotationAdvice={rotationAdvice}
             droughtMode={droughtMode}
             liveSensors={liveSensors}
+            simMonth={simMonth}
+            setSimMonth={setSimMonth}
+            simRegion={simRegion}
+            setSimRegion={setSimRegion}
+            simCrop={simCrop}
+            setSimCrop={setSimCrop}
+            encyclopedia={encyclopedia}
           />
         )}
 
