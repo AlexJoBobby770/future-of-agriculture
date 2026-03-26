@@ -1,0 +1,438 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "region": "South India / Tropical",
+    "last_updated": "2026-03-26",
+    "total_crops": 12,
+    "npk_unit": "kg/hectare",
+    "notes": "N-P-K values are numeric (kg/ha) for direct use in logic engines and depletion math."
+  },
+  "crops": [
+    {
+      "id": "paddy_01",
+      "name": "Paddy (Rice)",
+      "scientific_name": "Oryza sativa",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 6.5 },
+        "temperature_celsius": { "min": 20, "max": 35 },
+        "nitrogen_req": { "label": "high", "kg_per_ha": 120 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 50 },
+        "potassium_req": { "label": "medium", "kg_per_ha": 50 }
+      },
+      "water_intensity": 9,
+      "water_req_mm_per_day": 8.5,
+      "growth_duration_days": 120,
+      "pest_management": [
+        {
+          "pest_name": "Brown Planthopper",
+          "proactive_treatment": "Apply neem-based biopesticide at early tillering stage; maintain field drainage to reduce humidity."
+        },
+        {
+          "pest_name": "Blast (Pyricularia oryzae)",
+          "proactive_treatment": "Use Trichoderma viride seed treatment; avoid excess nitrogen application."
+        },
+        {
+          "pest_name": "Stem Borer",
+          "proactive_treatment": "Release Trichogramma japonicum egg parasitoids at weekly intervals during vegetative stage."
+        }
+      ],
+      "climate_resilience_tip": "During drought, switch to SRI (System of Rice Intensification) with alternate wetting and drying to cut water use by up to 40%; during heavy rain, ensure bund height is at least 15 cm to prevent lodging.",
+      "companion_crops": ["azolla_green_manure", "sesbania_01", "dhaincha_01"],
+      "soil_depletion_index": 0.72,
+      "rotation_benefit": "Heavy nitrogen feeder; always follow with legumes to restore N levels."
+    },
+    {
+      "id": "coconut_01",
+      "name": "Coconut",
+      "scientific_name": "Cocos nucifera",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 8.0 },
+        "temperature_celsius": { "min": 20, "max": 32 },
+        "nitrogen_req": { "label": "medium", "kg_per_ha": 100 },
+        "phosphorus_req": { "label": "low", "kg_per_ha": 40 },
+        "potassium_req": { "label": "high", "kg_per_ha": 200 }
+      },
+      "water_intensity": 6,
+      "water_req_mm_per_day": 4.5,
+      "growth_duration_days": 1825,
+      "pest_management": [
+        {
+          "pest_name": "Rhinoceros Beetle",
+          "proactive_treatment": "Install pheromone traps near palms; apply Metarhizium anisopliae biopesticide to compost heaps."
+        },
+        {
+          "pest_name": "Red Palm Weevil",
+          "proactive_treatment": "Use aggregation pheromone traps; inject Entomopathogenic nematodes at crown base."
+        },
+        {
+          "pest_name": "Bud Rot (Phytophthora)",
+          "proactive_treatment": "Apply Bordeaux mixture to crown during pre-monsoon; ensure proper drainage around base."
+        }
+      ],
+      "climate_resilience_tip": "During drought, apply mulch of 8–10 kg dried leaves in a 2m radius around the trunk and give basin irrigation every 7 days; during cyclones, remove dead fronds to reduce wind resistance.",
+      "companion_crops": ["banana_01", "black_pepper_01", "cocoa_01", "pineapple_01"],
+      "soil_depletion_index": 0.35,
+      "rotation_benefit": "Perennial crop; intercrop with nitrogen-fixing ground covers like Calapogonium to enrich soil."
+    },
+    {
+      "id": "rubber_01",
+      "name": "Rubber",
+      "scientific_name": "Hevea brasiliensis",
+      "optimal_conditions": {
+        "ph_range": { "min": 4.5, "max": 6.0 },
+        "temperature_celsius": { "min": 20, "max": 34 },
+        "nitrogen_req": { "label": "medium", "kg_per_ha": 90 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 45 },
+        "potassium_req": { "label": "medium", "kg_per_ha": 90 }
+      },
+      "water_intensity": 5,
+      "water_req_mm_per_day": 3.8,
+      "growth_duration_days": 2555,
+      "pest_management": [
+        {
+          "pest_name": "Abnormal Leaf Fall (Phytophthora meadii)",
+          "proactive_treatment": "Apply Metalaxyl-based fungicide during pre-wintering; improve inter-row drainage to reduce leaf wetness."
+        },
+        {
+          "pest_name": "Pink Disease (Corticium salmonicolor)",
+          "proactive_treatment": "Paint branches with Bordeaux paste; prune and burn infected bark immediately."
+        },
+        {
+          "pest_name": "Scale Insects",
+          "proactive_treatment": "Spray horticultural mineral oil during dry season; encourage natural predators like Chilocorus beetles."
+        }
+      ],
+      "climate_resilience_tip": "During heavy rain and high humidity, apply preventive fungicide before monsoon onset and ensure windbreaks are established to protect from storm damage.",
+      "companion_crops": ["banana_01", "pineapple_01", "ginger_01"],
+      "soil_depletion_index": 0.30,
+      "rotation_benefit": "Leaf litter significantly improves soil organic matter; underplant with leguminous cover crops during the establishment phase."
+    },
+    {
+      "id": "black_pepper_01",
+      "name": "Black Pepper",
+      "scientific_name": "Piper nigrum",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 6.5 },
+        "temperature_celsius": { "min": 18, "max": 32 },
+        "nitrogen_req": { "label": "high", "kg_per_ha": 140 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 55 },
+        "potassium_req": { "label": "high", "kg_per_ha": 270 }
+      },
+      "water_intensity": 6,
+      "water_req_mm_per_day": 4.0,
+      "growth_duration_days": 365,
+      "pest_management": [
+        {
+          "pest_name": "Phytophthora Foot Rot (Quick Wilt)",
+          "proactive_treatment": "Apply Trichoderma harzianum to the root zone before monsoon; avoid waterlogging by forming raised basins."
+        },
+        {
+          "pest_name": "Pollu Beetle",
+          "proactive_treatment": "Spray carbaryl during spike emergence; collect and destroy fallen berries weekly."
+        },
+        {
+          "pest_name": "Stunt Disease (Nematode-viral complex)",
+          "proactive_treatment": "Apply Paecilomyces lilacinus bio-nematicide; use only certified disease-free planting material."
+        }
+      ],
+      "climate_resilience_tip": "During drought, apply a thick mulch of green leaves around the base and provide life-saving irrigation once every 10 days; avoid over-irrigation during monsoon to prevent foot rot.",
+      "companion_crops": ["coconut_01", "arecanut_01", "jack_fruit_01"],
+      "soil_depletion_index": 0.60,
+      "rotation_benefit": "Heavy K and N feeder; intercropping with Gliricidia as a live standard provides N-fixation and shade regulation."
+    },
+    {
+      "id": "banana_01",
+      "name": "Banana",
+      "scientific_name": "Musa acuminata",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 7.0 },
+        "temperature_celsius": { "min": 15, "max": 35 },
+        "nitrogen_req": { "label": "high", "kg_per_ha": 200 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 60 },
+        "potassium_req": { "label": "very_high", "kg_per_ha": 300 }
+      },
+      "water_intensity": 8,
+      "water_req_mm_per_day": 7.0,
+      "growth_duration_days": 365,
+      "pest_management": [
+        {
+          "pest_name": "Panama Wilt (Fusarium oxysporum)",
+          "proactive_treatment": "Drench root zone with Pseudomonas fluorescens; plant only certified resistant varieties like Nendran."
+        },
+        {
+          "pest_name": "Banana Weevil Borer",
+          "proactive_treatment": "Apply entomopathogenic nematodes to pseudostem base; set pheromone traps to monitor adult population."
+        },
+        {
+          "pest_name": "Sigatoka Leaf Spot",
+          "proactive_treatment": "Remove infected leaves promptly; apply Mancozeb spray at 21-day intervals during humid periods."
+        }
+      ],
+      "climate_resilience_tip": "During drought, apply 15–20 kg of dry mulch per plant and use drip irrigation targeting 8 liters per plant per day; prop plants with bamboo stakes before the monsoon to prevent wind throw.",
+      "companion_crops": ["paddy_01", "cowpea_01", "yam_01"],
+      "soil_depletion_index": 0.80,
+      "rotation_benefit": "Extremely heavy N and K feeder; always follow banana with a deep-rooting legume like groundnut to break pest cycles and replenish nutrients."
+    },
+    {
+      "id": "tapioca_01",
+      "name": "Tapioca (Cassava)",
+      "scientific_name": "Manihot esculenta",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 7.5 },
+        "temperature_celsius": { "min": 20, "max": 34 },
+        "nitrogen_req": { "label": "low", "kg_per_ha": 50 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 50 },
+        "potassium_req": { "label": "high", "kg_per_ha": 100 }
+      },
+      "water_intensity": 3,
+      "water_req_mm_per_day": 2.5,
+      "growth_duration_days": 270,
+      "pest_management": [
+        {
+          "pest_name": "Cassava Mosaic Disease (CMD)",
+          "proactive_treatment": "Use CMD-resistant varieties; rogue out infected plants immediately and control whitefly vectors with neem oil spray."
+        },
+        {
+          "pest_name": "Red Spider Mite",
+          "proactive_treatment": "Spray neem seed kernel extract (5%); maintain proper plant spacing to improve air circulation."
+        },
+        {
+          "pest_name": "Mealybug",
+          "proactive_treatment": "Release Anagyrus lopezi parasitoid wasp; spray fish oil rosin soap solution on infested areas."
+        }
+      ],
+      "climate_resilience_tip": "Tapioca is naturally drought-tolerant; during prolonged dry spells, earthing-up soil around the base retains moisture and prevents tuber exposure.",
+      "companion_crops": ["cowpea_01", "groundnut_01", "horsegram_01"],
+      "soil_depletion_index": 0.45,
+      "rotation_benefit": "Moderate nutrient demand; good break crop for pest cycles; follow with cowpea or horsegram to restore N and P."
+    },
+    {
+      "id": "cowpea_01",
+      "name": "Cowpea",
+      "scientific_name": "Vigna unguiculata",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 7.0 },
+        "temperature_celsius": { "min": 18, "max": 35 },
+        "nitrogen_req": { "label": "low", "kg_per_ha": 20 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 40 },
+        "potassium_req": { "label": "low", "kg_per_ha": 30 }
+      },
+      "water_intensity": 3,
+      "water_req_mm_per_day": 2.0,
+      "growth_duration_days": 65,
+      "pest_management": [
+        {
+          "pest_name": "Aphids",
+          "proactive_treatment": "Apply neem oil (0.5%) spray in the early morning; intercrop with maize as a repellent barrier."
+        },
+        {
+          "pest_name": "Pod Borer (Maruca vitrata)",
+          "proactive_treatment": "Apply Bacillus thuringiensis (Bt) spray at flowering stage; use pheromone traps for early detection."
+        }
+      ],
+      "climate_resilience_tip": "Highly drought-tolerant once established; in heavy rain, improve drainage furrows to prevent root rot and waterlogging of pods.",
+      "companion_crops": ["paddy_01", "tapioca_01", "banana_01", "maize_01"],
+      "soil_depletion_index": -0.40,
+      "nitrogen_fixed_kg_per_ha": 100,
+      "rotation_benefit": "Excellent nitrogen fixer (up to 100 kg N/ha); ideal restorative crop after any heavy nitrogen feeder like Paddy or Banana."
+    },
+    {
+      "id": "groundnut_01",
+      "name": "Groundnut (Peanut)",
+      "scientific_name": "Arachis hypogaea",
+      "optimal_conditions": {
+        "ph_range": { "min": 6.0, "max": 6.5 },
+        "temperature_celsius": { "min": 20, "max": 33 },
+        "nitrogen_req": { "label": "low", "kg_per_ha": 25 },
+        "phosphorus_req": { "label": "high", "kg_per_ha": 50 },
+        "potassium_req": { "label": "medium", "kg_per_ha": 50 }
+      },
+      "water_intensity": 4,
+      "water_req_mm_per_day": 3.5,
+      "growth_duration_days": 110,
+      "pest_management": [
+        {
+          "pest_name": "Early Leaf Spot (Cercospora arachidicola)",
+          "proactive_treatment": "Apply Carbendazim spray at first sign of spots; ensure 40 cm plant spacing for air circulation."
+        },
+        {
+          "pest_name": "Tobacco Caterpillar",
+          "proactive_treatment": "Install pheromone traps (5 per acre); apply Spinosad biopesticide during peak egg-hatch phase."
+        },
+        {
+          "pest_name": "Aflatoxin (Aspergillus flavus)",
+          "proactive_treatment": "Harvest before moisture content drops below 35%; dry pods to 9% moisture within 48 hours of harvest."
+        }
+      ],
+      "climate_resilience_tip": "During drought at pegging stage, provide one life-saving irrigation of 40mm to secure pod formation; avoid irrigation within 10 days of harvest to prevent aflatoxin contamination.",
+      "companion_crops": ["tapioca_01", "maize_01", "sorghum_01"],
+      "soil_depletion_index": -0.30,
+      "nitrogen_fixed_kg_per_ha": 75,
+      "rotation_benefit": "Nitrogen fixer and good phosphorus mobilizer; improves soil structure through calcium enrichment from pods."
+    },
+    {
+      "id": "ginger_01",
+      "name": "Ginger",
+      "scientific_name": "Zingiber officinale",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 6.5 },
+        "temperature_celsius": { "min": 19, "max": 30 },
+        "nitrogen_req": { "label": "high", "kg_per_ha": 125 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 50 },
+        "potassium_req": { "label": "high", "kg_per_ha": 112 }
+      },
+      "water_intensity": 7,
+      "water_req_mm_per_day": 5.5,
+      "growth_duration_days": 240,
+      "pest_management": [
+        {
+          "pest_name": "Soft Rot (Pythium aphanidermatum)",
+          "proactive_treatment": "Treat seed rhizomes with Metalaxyl before planting; apply Trichoderma viride to soil at planting."
+        },
+        {
+          "pest_name": "Rhizome Scale",
+          "proactive_treatment": "Dip seed rhizomes in quinalphos solution for 20 minutes before storage and planting."
+        },
+        {
+          "pest_name": "Shoot Borer (Conogethes punctiferalis)",
+          "proactive_treatment": "Set up pheromone traps in the field; spray neem oil at monthly intervals from second month."
+        }
+      ],
+      "climate_resilience_tip": "During heavy rain, ensure raised beds with good lateral drainage to prevent rhizome rot; during dry spells, mulch with green leaves to retain 60–70% soil moisture at 15 cm depth.",
+      "companion_crops": ["coconut_01", "rubber_01", "black_pepper_01", "cowpea_01"],
+      "soil_depletion_index": 0.65,
+      "rotation_benefit": "Depletes N and K significantly; follow with green manure crops like Sesbania or cowpea to restore fertility before the next main crop."
+    },
+    {
+      "id": "turmeric_01",
+      "name": "Turmeric",
+      "scientific_name": "Curcuma longa",
+      "optimal_conditions": {
+        "ph_range": { "min": 5.5, "max": 7.0 },
+        "temperature_celsius": { "min": 20, "max": 30 },
+        "nitrogen_req": { "label": "high", "kg_per_ha": 120 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 50 },
+        "potassium_req": { "label": "high", "kg_per_ha": 120 }
+      },
+      "water_intensity": 6,
+      "water_req_mm_per_day": 5.0,
+      "growth_duration_days": 270,
+      "pest_management": [
+        {
+          "pest_name": "Rhizome Rot (Pythium spp.)",
+          "proactive_treatment": "Apply Pseudomonas fluorescens as soil drench at planting and again at 45 days; avoid standing water."
+        },
+        {
+          "pest_name": "Leaf Blotch (Taphrina maculans)",
+          "proactive_treatment": "Spray Mancozeb (0.2%) at 30-day intervals during monsoon; remove and burn infected leaves."
+        },
+        {
+          "pest_name": "Shoot Borer",
+          "proactive_treatment": "Apply Carbofuran granules at 30 and 60 days after planting in the whorl of the plant."
+        }
+      ],
+      "climate_resilience_tip": "Apply thick organic mulch (10–15 tonnes per hectare) at planting to conserve moisture during dry spells and prevent rhizome exposure; hill up soil around plants before heavy monsoon to prevent waterlogging.",
+      "companion_crops": ["coconut_01", "banana_01", "cowpea_01", "ginger_01"],
+      "soil_depletion_index": 0.60,
+      "rotation_benefit": "Turmeric has natural allelopathic properties that suppress weeds; despite high nutrient demand, its deep root canopy improves soil organic matter after incorporation of residues."
+    },
+    {
+      "id": "arecanut_01",
+      "name": "Arecanut (Betel Nut)",
+      "scientific_name": "Areca catechu",
+      "optimal_conditions": {
+        "ph_range": { "min": 6.0, "max": 7.5 },
+        "temperature_celsius": { "min": 14, "max": 36 },
+        "nitrogen_req": { "label": "medium", "kg_per_ha": 100 },
+        "phosphorus_req": { "label": "low", "kg_per_ha": 40 },
+        "potassium_req": { "label": "high", "kg_per_ha": 150 }
+      },
+      "water_intensity": 7,
+      "water_req_mm_per_day": 5.0,
+      "growth_duration_days": 2190,
+      "pest_management": [
+        {
+          "pest_name": "Koleroga (Phytophthora areacae)",
+          "proactive_treatment": "Spray Bordeaux mixture (1%) on the bunch before monsoon; improve drainage channels in the garden."
+        },
+        {
+          "pest_name": "Root Grub",
+          "proactive_treatment": "Apply Chlorpyrifos granules in the root zone; introduce entomopathogenic fungi Beauveria bassiana."
+        },
+        {
+          "pest_name": "Inflorescence Dieback",
+          "proactive_treatment": "Spray Carbendazim at bud opening; provide potassium-rich fertilizer to boost disease resistance."
+        }
+      ],
+      "climate_resilience_tip": "During drought, basin irrigation once every 7 days with 175 litres per palm is essential; intercropping with banana provides natural shade and humidity buffering for the palm.",
+      "companion_crops": ["black_pepper_01", "banana_01", "cocoa_01", "nutmeg_01"],
+      "soil_depletion_index": 0.38,
+      "rotation_benefit": "Perennial crop with moderate nutrient demand; use the leaf sheath and husk as high-potassium organic mulch to partially recycle nutrients."
+    },
+    {
+      "id": "horsegram_01",
+      "name": "Horsegram",
+      "scientific_name": "Macrotyloma uniflorum",
+      "optimal_conditions": {
+        "ph_range": { "min": 6.0, "max": 7.5 },
+        "temperature_celsius": { "min": 18, "max": 35 },
+        "nitrogen_req": { "label": "very_low", "kg_per_ha": 15 },
+        "phosphorus_req": { "label": "low", "kg_per_ha": 20 },
+        "potassium_req": { "label": "low", "kg_per_ha": 20 }
+      },
+      "water_intensity": 2,
+      "water_req_mm_per_day": 1.5,
+      "growth_duration_days": 90,
+      "pest_management": [
+        {
+          "pest_name": "Pod Fly (Melanagromyza obtusa)",
+          "proactive_treatment": "Set up yellow sticky traps; spray neem oil (2%) at 50% flowering stage."
+        },
+        {
+          "pest_name": "Powdery Mildew",
+          "proactive_treatment": "Dust sulphur powder (25 kg/ha) at first appearance; ensure adequate plant spacing."
+        }
+      ],
+      "climate_resilience_tip": "Extremely drought-hardy; thrives on residual soil moisture from previous crops — an ideal crop for water-stressed periods and degraded soils with no supplemental irrigation needed.",
+      "companion_crops": ["maize_01", "tapioca_01", "sorghum_01"],
+      "soil_depletion_index": -0.50,
+      "nitrogen_fixed_kg_per_ha": 80,
+      "rotation_benefit": "Outstanding soil restorative crop — fixes up to 80 kg N/ha; ideal as a post-harvest cover crop to prevent erosion and replenish depleted fields before a main crop season."
+    }
+  ],
+  "rotation_logic_rules": {
+    "description": "Parsed rules for the Smart Rotation Logic Engine (Member 1 Backend).",
+    "trigger_conditions": [
+      {
+        "rule_id": "R01",
+        "condition": "nitrogen_level_percent < 30",
+        "recommended_crop_ids": ["cowpea_01", "horsegram_01", "groundnut_01"],
+        "reason": "Nitrogen critically low — deploy legume to biologically fix N."
+      },
+      {
+        "rule_id": "R02",
+        "condition": "water_intensity_previous_crop >= 8",
+        "recommended_crop_ids": ["horsegram_01", "tapioca_01", "groundnut_01"],
+        "reason": "Previous crop was water-intensive — shift to drought-tolerant variety."
+      },
+      {
+        "rule_id": "R03",
+        "condition": "soil_ph < 5.5",
+        "recommended_crop_ids": ["tapioca_01", "rubber_01", "horsegram_01"],
+        "reason": "Acidic soil — select acid-tolerant crops; apply lime before high-pH crops."
+      },
+      {
+        "rule_id": "R04",
+        "condition": "soil_depletion_index_previous_crop > 0.6",
+        "recommended_crop_ids": ["cowpea_01", "horsegram_01", "groundnut_01"],
+        "reason": "High soil depletion from previous crop — restorative legume rotation mandatory."
+      },
+      {
+        "rule_id": "R05",
+        "condition": "potassium_level_percent < 25",
+        "recommended_crop_ids": ["cowpea_01", "horsegram_01"],
+        "reason": "Potassium low — avoid banana and black pepper; use low-K-demand crops."
+      }
+    ]
+  }
+}

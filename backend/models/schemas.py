@@ -1,0 +1,77 @@
+"""
+models/schemas.py
+Pydantic models for request/response validation across all endpoints.
+"""
+
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+
+# ─────────────────────────────────────────────
+# /predict  – Resource Depletion
+# ─────────────────────────────────────────────
+
+class PredictRequest(BaseModel):
+    water_level: float = Field(..., gt=0, description="Current water level in litres")
+    daily_usage: float = Field(default=50.0, gt=0, description="Daily water consumption in litres")
+    evapotranspiration_rate: float = Field(..., ge=0, description="Daily ET loss in litres")
+    rain_forecast: List[float] = Field(..., min_items=1, description="Next N days of rain (litres)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "water_level": 1000,
+                "daily_usage": 50,
+                "evapotranspiration_rate": 5,
+                "rain_forecast": [0, 2, 0, 5, 0, 0, 3]
+            }
+        }
+
+
+class PredictResponse(BaseModel):
+    days_until_depletion: float
+    avg_daily_net_loss: float
+    status: str                   # "Normal" | "Drought Warning" | "Critical – Drought Mode"
+    drought_mode: bool            # True when days < 3
+    action: str                   # Human-readable advice
+
+
+# ─────────────────────────────────────────────
+# /rotation  – Crop Rotation Recommendation
+# ─────────────────────────────────────────────
+
+class RotationRequest(BaseModel):
+    nitrogen: float = Field(..., ge=0, le=100, description="Nitrogen % in soil")
+    phosphorus: float = Field(..., ge=0, le=100, description="Phosphorus % in soil")
+    potassium: float = Field(..., ge=0, le=100, description="Potassium % in soil")
+    soil_type: Optional[str] = Field(default="Loamy", description="e.g. Loamy, Sandy, Clay")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "nitrogen": 25,
+                "phosphorus": 40,
+                "potassium": 60,
+                "soil_type": "Loamy"
+            }
+        }
+
+
+class RotationResponse(BaseModel):
+    recommended_crop: str
+    reason: str
+    soil_health_score: float      # 0-100 composite score
+    next_action: str              # What to do after this rotation
+
+
+# ─────────────────────────────────────────────
+# /market  – Crop Price Insights
+# ─────────────────────────────────────────────
+
+class MarketResponse(BaseModel):
+    crop: str
+    current_price: float
+    unit: str                     # e.g. "₹/kg"
+    trend: str                    # "Increasing" | "Stable" | "Decreasing"
+    risk_level: str               # "Low" | "Medium" | "High"
+    recommendation: str           # Buy/Sell/Hold signal
