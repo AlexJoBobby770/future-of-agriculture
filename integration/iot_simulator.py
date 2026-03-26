@@ -49,11 +49,24 @@ class AgriIoTSimulator:
             self.k -= 0.08
         
         # 3. Small drift for pH
-        self.ph += random.uniform(-0.01, 0.01)
+        self.ph += random.uniform(-0.02, 0.02)
         
-        self.n = max(10, self.n) # Prevent negative values
-        self.p = max(5, self.p)
-        self.k = max(10, self.k)
+        # 4. Hackathon "Wow-Factor" Sensor Jitter (Micro-fluctuations)
+        self.n += random.uniform(-0.3, 0.3)
+        self.p += random.uniform(-0.1, 0.1)
+        self.k += random.uniform(-0.2, 0.2)
+        
+        # Inject micro-jitter into the weather object so the UI Temperature/Moisture gauges dance
+        if 'current' in weather:
+            weather['current']['temp_c'] = round(weather['current'].get('temp_c', 30.0) + random.uniform(-0.1, 0.1), 1)
+            weather['current']['soil_moisture_pct'] = round(weather['current'].get('soil_moisture_pct', 35.0) + random.uniform(-0.5, 0.5), 1)
+            # Ensure moisture stays in bounds
+            weather['current']['soil_moisture_pct'] = max(0, min(100, weather['current']['soil_moisture_pct']))
+        
+        self.n = max(10, min(self.n, 150)) # Prevent negative values and unrealistic spikes
+        self.p = max(5, min(self.p, 100))
+        self.k = max(10, min(self.k, 100))
+        self.ph = max(4.0, min(self.ph, 9.0))
 
     def get_packet(self):
         self.last_weather = self.fetcher.get_live_reality()

@@ -11,11 +11,6 @@ from data_science.success_matrix import LEACHING_RAIN_THRESHOLD_MM
 
 
 def get_weather_impact():
-<<<<<<< HEAD
-    path = "integration/data/live_weather.json"
-    if not os.path.exists(path):
-        return {"status": "Waiting for data...", "leaching_penalty": 0}
-=======
     """
     Checks the local weather data (from Member 3's fetcher)
     and calculates the 'Leaching Penalty'.
@@ -27,18 +22,11 @@ def get_weather_impact():
 
     if not os.path.exists(path):
         return {"status": "Weather Station Offline", "leaching_penalty": 0}
->>>>>>> b5f120a5559064ce7f46a02c2180a678802c47d1
 
     with open(path, 'r') as f:
         data = json.load(f)
 
     current_rain = data.get("current", {}).get("rain", 0.0)
-<<<<<<< HEAD
-    
-    # Updated Threshold: 10mm
-=======
-
->>>>>>> b5f120a5559064ce7f46a02c2180a678802c47d1
     if current_rain > LEACHING_RAIN_THRESHOLD_MM:
         penalty = 10.5
         status = f"LEACHING ALERT: {current_rain}mm rain (threshold: {LEACHING_RAIN_THRESHOLD_MM}mm)"

@@ -42,9 +42,9 @@ class PredictResponse(BaseModel):
 # ─────────────────────────────────────────────
 
 class RotationRequest(BaseModel):
-    nitrogen: float = Field(..., ge=0, le=100, description="Nitrogen % in soil")
-    phosphorus: float = Field(..., ge=0, le=100, description="Phosphorus % in soil")
-    potassium: float = Field(..., ge=0, le=100, description="Potassium % in soil")
+    nitrogen: float = Field(..., ge=0, le=1000, description="Nitrogen level in soil")
+    phosphorus: float = Field(..., ge=0, le=1000, description="Phosphorus level in soil")
+    potassium: float = Field(..., ge=0, le=1000, description="Potassium level in soil")
     soil_ph: float = Field(..., ge=0, le=14, description="Current soil pH (0–14)")
     previous_crop_id: Optional[str] = Field(
         default=None,

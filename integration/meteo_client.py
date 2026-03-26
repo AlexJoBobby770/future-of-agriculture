@@ -34,11 +34,15 @@ class KochiAgriFetcher:
             response.raise_for_status()
             data = response.json()
 
+            moisture_val = data['hourly']['soil_moisture_0_to_7cm'][0]
+            if moisture_val is None:
+                moisture_val = 0.35
+
             return {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "current": {
                     "temp_c": data['hourly']['temperature_2m'][0],
-                    "soil_moisture_pct": round(data['hourly']['soil_moisture_0_to_7cm'][0] * 100, 2),
+                    "soil_moisture_pct": round(moisture_val * 100, 2),
                     "evap_rate_mm": data['hourly']['et0_fao_evapotranspiration'][0],
                     "sunlight_w_m2": data['hourly']['shortwave_radiation'][0],
                     "rain": data['daily']['precipitation_sum'][0] # Today's rain
