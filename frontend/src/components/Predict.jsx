@@ -1,23 +1,66 @@
 import React, { useState } from 'react';
 
-const Predict = () => {
-    // All original hooks preserved
-    const [tankCapacity, setTankCapacity] = useState(5000);
-    const [dailyUsage,   setDailyUsage]   = useState(800);
-    const [rainfall,     setRainfall]     = useState(0);
-    const [prediction,   setPrediction]   = useState(null);
+const Predict = ({ apiBase = 'http://127.0.0.1:8000' }) => {
+    // Input state
+    const [tankCapacity,  setTankCapacity]  = useState(5000);
+    const [dailyUsage,    setDailyUsage]    = useState(800);
+    const [evapRate,      setEvapRate]      = useState(5);
+    const [rainForecast,  setRainForecast]  = useState([0, 2, 0, 5, 0, 0, 3]);
+    const [prediction,    setPrediction]    = useState(null);
     const [isCalculating, setIsCalculating] = useState(false);
+    const [error,         setError]         = useState(null);
 
-    // Original calculation logic preserved
-    const handleCalculate = () => {
+    // Call the real POST /predict API
+    const handleCalculate = async () => {
         setIsCalculating(true);
-        setTimeout(() => {
-            const extraWater = rainfall * 100;
-            const totalWater = tankCapacity + extraWater;
-            const daysLeft   = (totalWater / dailyUsage).toFixed(1);
-            setPrediction({ days: daysLeft, isCritical: daysLeft < 5, totalWater });
+        setError(null);
+        try {
+            const res = await fetch(`${apiBase}/predict`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    water_level: tankCapacity,
+                    daily_usage: dailyUsage,
+                    evapotranspiration_rate: evapRate,
+                    rain_forecast: rainForecast,
+                }),
+            });
+            if (!res.ok) throw new Error(`API error: ${res.status}`);
+            const data = await res.json();
+            setPrediction({
+                days: data.days_until_depletion,
+                isCritical: data.drought_mode,
+                status: data.status,
+                action: data.action,
+                avgLoss: data.avg_daily_net_loss,
+                droughtMode: data.drought_mode,
+                totalWater: tankCapacity,
+            });
+        } catch (err) {
+            setError(err.message);
+            // Fallback to client-side calc
+            const avgRain = rainForecast.reduce((a, b) => a + b, 0) / rainForecast.length;
+            const netLoss = dailyUsage + evapRate - avgRain;
+            const days = netLoss > 0 ? (tankCapacity * 0.9 / netLoss).toFixed(1) : 999;
+            setPrediction({
+                days: parseFloat(days),
+                isCritical: days < 3,
+                status: days < 3 ? 'Critical' : days < 7 ? 'Warning' : 'Normal',
+                action: 'API offline — showing client-side estimate.',
+                avgLoss: Math.max(0, netLoss).toFixed(1),
+                droughtMode: days < 3,
+                totalWater: tankCapacity,
+            });
+        } finally {
             setIsCalculating(false);
-        }, 500);
+        }
+    };
+
+    // Rain forecast editor
+    const updateRainDay = (index, value) => {
+        const updated = [...rainForecast];
+        updated[index] = Number(value);
+        setRainForecast(updated);
     };
 
     /* Custom Slider Row */
@@ -43,12 +86,10 @@ const Predict = () => {
                 </div>
                 {/* Track wrapper */}
                 <div style={{ position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
-                    {/* Background track */}
                     <div style={{
                         position: 'absolute', left: 0, right: 0, height: '5px',
                         background: 'rgba(6,95,70,0.08)', borderRadius: '3px',
                     }} />
-                    {/* Filled track */}
                     <div style={{
                         position: 'absolute', left: 0, width: `${pct}%`, height: '5px',
                         background: `linear-gradient(90deg, ${color}60, ${color})`,
@@ -81,11 +122,6 @@ const Predict = () => {
 
     return (
         <div className="animate-fade-in">
-            {/*
-              LAYOUT: Stack vertically on narrow screens.
-              Input panel on top, result panel below.
-              This guarantees correct display at any viewport width.
-            */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
                 {/* === INPUT PANEL === */}
@@ -99,23 +135,40 @@ const Predict = () => {
                         Simulation Parameters
                     </div>
 
-                    <SliderRow label="Tank Capacity"    value={tankCapacity} min={1000}  max={20000} step={500}  onChange={setTankCapacity} color="#2563eb"  unit="L"     icon="🛢️" />
-                    <SliderRow label="Daily Usage"      value={dailyUsage}   min={100}   max={5000}  step={100}  onChange={setDailyUsage}   color="#dc2626"  unit="L/day" icon="💧" />
-                    <SliderRow label="Expected Rainfall" value={rainfall}    min={0}     max={100}   step={5}    onChange={setRainfall}     color="#059669"  unit="mm"    icon="🌧️" />
+                    <SliderRow label="Tank Capacity"       value={tankCapacity} min={1000}  max={20000} step={500}  onChange={setTankCapacity} color="#2563eb"  unit="L"      icon="🛢️" />
+                    <SliderRow label="Daily Usage"         value={dailyUsage}   min={100}   max={5000}  step={100}  onChange={setDailyUsage}   color="#dc2626"  unit="L/day"  icon="💧" />
+                    <SliderRow label="Evapotranspiration"  value={evapRate}     min={0}     max={50}    step={1}    onChange={setEvapRate}     color="#d97706"  unit="L/day"  icon="🌡️" />
 
-                    {/* Formula Preview */}
-                    <div style={{
-                        padding: '12px 16px', borderRadius: '10px', marginBottom: '18px',
-                        background: 'var(--page-bg)', border: '1px solid rgba(6,95,70,0.10)',
-                        fontSize: '12px', color: 'var(--text-muted)',
-                    }}>
-                        <div style={{ fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '4px', fontSize: '11px' }}>Formula Preview</div>
-                        <span style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-primary)', fontSize: '11px' }}>
-                            ({tankCapacity.toLocaleString()} + {(rainfall * 100).toLocaleString()}) ÷ {dailyUsage.toLocaleString()} =&nbsp;
-                        </span>
-                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: '700', color: 'var(--trust-green)', fontSize: '12px' }}>
-                            {((tankCapacity + rainfall * 100) / dailyUsage).toFixed(1)} days
-                        </span>
+                    {/* 7-Day Rain Forecast */}
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{
+                            fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)',
+                            textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: '10px',
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                        }}>
+                            <span>🌧️</span> 7-Day Rain Forecast (L/day)
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
+                            {rainForecast.map((val, i) => (
+                                <div key={i} style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginBottom: '4px' }}>Day {i + 1}</div>
+                                    <input
+                                        type="number"
+                                        min={0} max={100} step={1}
+                                        value={val}
+                                        onChange={(e) => updateRainDay(i, e.target.value)}
+                                        style={{
+                                            width: '100%', padding: '8px 4px', textAlign: 'center',
+                                            border: '1px solid rgba(6,95,70,0.15)', borderRadius: '8px',
+                                            fontSize: '13px', fontFamily: "'JetBrains Mono', monospace",
+                                            fontWeight: '600', color: val > 0 ? '#059669' : 'var(--text-muted)',
+                                            background: val > 0 ? '#f0fdf4' : '#fff',
+                                            outline: 'none', boxSizing: 'border-box',
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* CTA Button */}
@@ -136,11 +189,17 @@ const Predict = () => {
                         onMouseEnter={e => { if (!isCalculating) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(6,95,70,0.35)'; } }}
                         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isCalculating ? 'none' : '0 4px 16px rgba(6,95,70,0.25)'; }}
                     >
-                        {isCalculating ? '⟳  Computing...' : '▶  Run Simulation'}
+                        {isCalculating ? '⟳  Computing...' : '▶  Run Depletion Analysis'}
                     </button>
+
+                    {error && (
+                        <div style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '8px', background: '#fffbeb', border: '1px solid rgba(217,119,6,0.2)', fontSize: '11px', color: '#d97706' }}>
+                            ⚠ API: {error} — showing fallback estimate
+                        </div>
+                    )}
                 </div>
 
-                {/* === RESULT PANEL (shown only after calculation) === */}
+                {/* === RESULT PANEL === */}
                 {prediction ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '720px' }}>
 
@@ -153,14 +212,14 @@ const Predict = () => {
                             <div style={{
                                 fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)',
                                 textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '16px',
-                            }}>Simulated Water Reserve</div>
+                            }}>Predicted Water Reserve</div>
 
                             <div style={{
                                 fontFamily: "'JetBrains Mono', monospace",
                                 fontSize: '64px', fontWeight: '800', lineHeight: 1,
                                 color: prediction.isCritical ? 'var(--danger)' : 'var(--trust-green)',
                             }}>
-                                {prediction.days}
+                                {typeof prediction.days === 'number' ? prediction.days.toFixed(1) : prediction.days}
                             </div>
                             <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px', marginBottom: '16px' }}>
                                 days of water remaining
@@ -196,21 +255,21 @@ const Predict = () => {
                                     background: prediction.isCritical ? 'var(--danger)' : 'var(--vibrant-mint)',
                                     animation: 'livePulse 1.5s ease-in-out infinite',
                                 }} />
-                                {prediction.isCritical ? 'Critical Shortage' : 'Safe Reserve'}
+                                {prediction.status}
                             </div>
                         </div>
 
-                        {/* Breakdown */}
+                        {/* Breakdown & Action */}
                         <div className="glass-card animate-fade-in">
                             <div style={{
                                 fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)',
                                 textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '16px',
-                            }}>Simulation Breakdown</div>
+                            }}>Analysis Breakdown</div>
                             {[
-                                { label: 'Tank Capacity',  value: `${tankCapacity.toLocaleString('en-IN')} L`,   color: 'var(--info)' },
-                                { label: 'Rainfall Bonus', value: `+${(rainfall * 100).toLocaleString('en-IN')} L`, color: 'var(--vibrant-mint)' },
-                                { label: 'Total Water',    value: `${prediction.totalWater.toLocaleString('en-IN')} L`, color: 'var(--text-primary)' },
-                                { label: 'Daily Burn',     value: `${dailyUsage.toLocaleString('en-IN')} L/day`, color: 'var(--danger)' },
+                                { label: 'Tank Capacity',    value: `${tankCapacity.toLocaleString('en-IN')} L`, color: 'var(--info)' },
+                                { label: 'Daily Usage',      value: `${dailyUsage.toLocaleString('en-IN')} L/day`, color: 'var(--danger)' },
+                                { label: 'ET Rate',          value: `${evapRate} L/day`, color: 'var(--warning)' },
+                                { label: 'Avg Daily Loss',   value: `${prediction.avgLoss} L/day`, color: 'var(--text-primary)' },
                             ].map(({ label, value, color }) => (
                                 <div key={label} style={{
                                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -223,6 +282,29 @@ const Predict = () => {
                                     }}>{value}</span>
                                 </div>
                             ))}
+
+                            {/* Action advice from API */}
+                            <div style={{
+                                marginTop: '14px', padding: '10px 12px', borderRadius: '10px',
+                                background: prediction.isCritical ? '#fef2f2' : '#f0fdf4',
+                                border: prediction.isCritical ? '1px solid rgba(220,38,38,0.15)' : '1px solid rgba(16,185,129,0.15)',
+                                fontSize: '11px', lineHeight: '1.6',
+                                color: prediction.isCritical ? 'var(--danger)' : 'var(--trust-green)',
+                                fontWeight: '600',
+                            }}>
+                                ▸ {prediction.action}
+                            </div>
+
+                            {prediction.droughtMode && (
+                                <div style={{
+                                    marginTop: '8px', padding: '8px 12px', borderRadius: '8px',
+                                    background: '#fef2f2', border: '1px solid rgba(220,38,38,0.25)',
+                                    fontSize: '10px', fontWeight: '800', color: 'var(--danger)',
+                                    textTransform: 'uppercase', letterSpacing: '0.8px', textAlign: 'center',
+                                }}>
+                                    🚨 Drought Mode Activated — High-Water Crops Blocked
+                                </div>
+                            )}
                         </div>
                     </div>
                 ) : (
@@ -234,11 +316,12 @@ const Predict = () => {
                     }}>
                         <div style={{ fontSize: '40px', marginBottom: '12px', opacity: 0.4 }}>💧</div>
                         <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '6px' }}>
-                            Awaiting Simulation
+                            Awaiting Analysis
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                            Adjust the parameters above and click{' '}
-                            <strong style={{ color: 'var(--trust-green)' }}>Run Simulation</strong>.
+                            Configure the parameters above and click{' '}
+                            <strong style={{ color: 'var(--trust-green)' }}>Run Depletion Analysis</strong>{' '}
+                            to get a prediction from the AI engine.
                         </div>
                     </div>
                 )}

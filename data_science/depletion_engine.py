@@ -1,4 +1,3 @@
-import numpy as np
 
 class DepletionEngine:
     def __init__(self, reserve_margin=0.1):

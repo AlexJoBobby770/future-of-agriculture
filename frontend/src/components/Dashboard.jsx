@@ -54,7 +54,7 @@ const ArcGauge = ({ value, max = 100, color, label, unit = '', size = 130 }) => 
 /* ----------------------------------------------------------
    Dashboard Component
    ---------------------------------------------------------- */
-const Dashboard = ({ waterDays, soilNPK }) => {
+const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode }) => {
     const isCritical = waterDays < 5;
     const waterPct = Math.min((waterDays / 30) * 100, 100);
 
@@ -62,14 +62,23 @@ const Dashboard = ({ waterDays, soilNPK }) => {
         <div className="animate-fade-in">
 
             {/* === ALERT BANNER === */}
-            <div className="alert-banner">
-                <div className="alert-icon">⚠️</div>
-                <div className="alert-content">
-                    <div className="alert-title">Drought Warning Active</div>
-                    <div className="alert-sub">Kochi District — Soil moisture below critical threshold. Immediate intervention advised.</div>
+            {(isCritical || droughtMode) && (
+                <div className="alert-banner">
+                    <div className="alert-icon">⚠️</div>
+                    <div className="alert-content">
+                        <div className="alert-title">
+                            {droughtMode ? 'Drought Mode Active' : 'Water Warning'}
+                        </div>
+                        <div className="alert-sub">
+                            {droughtMode
+                                ? 'Water reserves critically low (< 3 days). Emergency conservation protocols activated.'
+                                : `Water reserve at ${waterDays} days — below safe threshold. Monitor closely.`
+                            }
+                        </div>
+                    </div>
+                    <div className="alert-badge">Live</div>
                 </div>
-                <div className="alert-badge">Live</div>
-            </div>
+            )}
 
             {/* === RESOURCE TIMERS — two cards side by side === */}
             <div className="section-title">Resource Timers</div>
@@ -142,7 +151,7 @@ const Dashboard = ({ waterDays, soilNPK }) => {
                 </div>
             </div>
 
-            {/* === AI INVESTMENT SIGNAL === */}
+            {/* === AI INVESTMENT SIGNAL (LIVE from /rotation API) === */}
             <div className="section-title">AI Investment Signal</div>
             <div className="glass-card" style={{
                 border: 'var(--glass-border-accent)',
@@ -164,33 +173,40 @@ const Dashboard = ({ waterDays, soilNPK }) => {
                                 fontSize: '9px', fontWeight: '800', letterSpacing: '1px',
                                 background: 'linear-gradient(135deg, var(--trust-green), var(--vibrant-mint))',
                                 color: 'white', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase',
-                            }}>AI Signal</span>
+                            }}>
+                                {rotationAdvice?.is_live_data ? 'Live Signal' : 'AI Signal'}
+                            </span>
                             <span style={{ fontSize: '11px', color: 'var(--vibrant-mint)', fontWeight: '700', marginLeft: 'auto' }}>
-                                87% Confidence
+                                Score: {rotationAdvice?.soil_health_score ?? '--'}/100
                             </span>
                         </div>
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7', margin: 0 }}>
-                            Based on current soil NPK readings (N:46, P:36, K:49) and drought conditions, the AI model
-                            recommends rotating to <strong style={{ color: 'var(--trust-green)' }}>Cowpea (leguminous)</strong> next
-                            cycle. Cowpea will restore nitrogen within 60 days, reducing fertilizer cost by an estimated{' '}
-                            <strong style={{ color: 'var(--trust-green)' }}>₹8,400/acre</strong>.
-                        </p>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '14px', flexWrap: 'wrap' }}>
-                            {[
-                                { label: 'Yield Impact', value: '+18%', color: 'var(--vibrant-mint)' },
-                                { label: 'ROI Est.', value: '₹8.4K/acre', color: 'var(--info)' },
-                                { label: 'Timeline', value: '60 days', color: 'var(--warning)' },
-                                { label: 'Risk Level', value: 'Low', color: 'var(--success)' },
-                            ].map(({ label, value, color }) => (
-                                <div key={label} style={{
-                                    padding: '8px 14px', borderRadius: '10px',
-                                    background: 'var(--page-bg)', border: '1px solid rgba(6,95,70,0.10)',
+
+                        {rotationAdvice ? (
+                            <>
+                                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7', margin: '0 0 4px 0' }}>
+                                    <strong style={{ color: 'var(--trust-green)' }}>
+                                        Recommended: {rotationAdvice.recommended_crop}
+                                    </strong>
+                                </p>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6', margin: '0 0 4px 0' }}>
+                                    {rotationAdvice.reason}
+                                </p>
+                                <div style={{
+                                    marginTop: '10px', padding: '8px 12px', borderRadius: '8px',
+                                    background: droughtMode ? '#fef2f2' : '#f0fdf4',
+                                    border: droughtMode ? '1px solid rgba(220,38,38,0.2)' : '1px solid rgba(16,185,129,0.15)',
+                                    fontSize: '11px',
+                                    color: droughtMode ? 'var(--danger)' : 'var(--trust-green)',
+                                    fontWeight: '600',
                                 }}>
-                                    <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginBottom: '3px', letterSpacing: '0.5px' }}>{label}</div>
-                                    <div style={{ fontSize: '13px', fontWeight: '800', color }}>{value}</div>
+                                    ▸ {rotationAdvice.next_action}
                                 </div>
-                            ))}
-                        </div>
+                            </>
+                        ) : (
+                            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.7', margin: 0 }}>
+                                Loading rotation recommendation from API...
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>
