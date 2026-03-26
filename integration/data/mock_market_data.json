@@ -1,0 +1,31 @@
+
+import json
+import random
+
+crops = [
+    "Wheat",
+    "Rice",
+    "Corn",
+    "Soybeans",
+    "Legumes"
+]
+market_data = {}
+
+for crop in crops:
+    # Generate 30 days of prices with a slight upward or downward trend
+    base_price = random.randint(100,
+500)
+    trend = random.uniform(-2,
+2)
+    prices = [round(base_price + (i * trend) + random.uniform(-5,
+    5),
+    2) for i in range(30)
+]
+    market_data[crop
+] = prices
+
+with open("integration/data/mock_market_data.json",
+"w") as f:
+    json.dump(market_data, f, indent=4)
+
+print("Mock Market Data Generated!")
