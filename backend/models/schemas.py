@@ -44,6 +44,12 @@ class RotationRequest(BaseModel):
     nitrogen: float = Field(..., ge=0, le=100, description="Nitrogen % in soil")
     phosphorus: float = Field(..., ge=0, le=100, description="Phosphorus % in soil")
     potassium: float = Field(..., ge=0, le=100, description="Potassium % in soil")
+    soil_ph: float = Field(..., ge=0, le=14, description="Current soil pH (0–14)")
+    previous_crop_id: Optional[str] = Field(
+        default=None,
+        description="Encyclopedia crop ID of the last harvested crop (e.g. 'paddy_01', 'banana_01'). "
+                    "Used to evaluate water intensity and soil depletion index rules."
+    )
     soil_type: Optional[str] = Field(default="Loamy", description="e.g. Loamy, Sandy, Clay")
     current_moisture: Optional[float] = Field(default=None, ge=0, le=100, description="Current soil moisture %")
     current_rain: Optional[float] = Field(default=None, ge=0, description="Current rainfall in mm")
@@ -54,6 +60,8 @@ class RotationRequest(BaseModel):
                 "nitrogen": 25,
                 "phosphorus": 40,
                 "potassium": 60,
+                "soil_ph": 6.0,
+                "previous_crop_id": "paddy_01",
                 "soil_type": "Loamy",
                 "current_moisture": 45.0,
                 "current_rain": 2.5
@@ -66,6 +74,7 @@ class RotationResponse(BaseModel):
     reason: str
     soil_health_score: float      # 0-100 composite score
     next_action: str              # What to do after this rotation
+    is_live_data: bool            # True = live IoT sensors; False = simulated/fallback data
 
 
 # ─────────────────────────────────────────────
