@@ -120,6 +120,30 @@ DEFAULT_REASON = (
     "will restore organic matter and all macronutrients before the next main season."
 )
 
+# ── Base Yields (Tons/Hectare) for Yield Prediction ────────────────────────────
+BASE_YIELDS = {
+    "Paddy (Rice)": 4.5,
+    "Coconut": 10.0,
+    "Rubber": 1.5,
+    "Black Pepper": 2.0,
+    "Banana": 35.0,
+    "Tapioca (Cassava)": 30.0,
+    "Tapioca (Acid-Tolerant) — after Lime Treatment": 25.0,
+    "Cowpea": 1.2,
+    "Cowpea (Legume)": 1.2,
+    "Groundnut": 2.5,
+    "Groundnut (Low-Water Legume)": 2.5,
+    "Ginger": 20.0,
+    "Turmeric": 25.0,
+    "Arecanut": 2.5,
+    "Horsegram": 0.8,
+    "Horsegram (Cover Crop)": 0.8,
+    "Horsegram (Drought-Resistant Cover Crop)": 0.8,
+    "Horsegram (Drought-Tolerant Cover Crop)": 0.8,
+    "Mustard": 1.5,
+    "Green Manure (Sunnhemp)": 5.0
+}
+
 
 # ── Encyclopedia loader ────────────────────────────────────────────────────────
 
@@ -299,17 +323,20 @@ def recommend_rotation(
     weather_path = os.path.join(
         os.path.dirname(__file__), "..", "..", "integration", "data", "live_weather.json"
     )
-    live_rain      = 0.0
-    sensors_online = False
+    live_rain        = 0.0
+    rain_forecast_7d = None
+    sensors_online   = False
 
     if os.path.exists(weather_path):
         try:
             with open(weather_path, "r") as f:
                 w_data = json.load(f)
-            live_rain      = w_data.get("current", {}).get("rain", 0.0)
-            sensors_online = True
+            live_rain        = w_data.get("current", {}).get("rain", 0.0)
+            rain_forecast_7d = w_data.get("rain_forecast", None)
+            sensors_online   = True
         except (json.JSONDecodeError, KeyError):
-            live_rain = 0.0
+            live_rain        = 0.0
+            rain_forecast_7d = None
 
     # ── 2. LOAD MARKET PRICES ──────────────────────────────────────────────────
     market_path   = os.path.join(
@@ -397,17 +424,30 @@ def recommend_rotation(
         )
 
     # ── 7. KNN CONFIDENCE SCORING (Euclidean Distance + Softmax) ────────────
-    knn_result = match_best_crop(adjusted_n, data.phosphorus, data.potassium)
+    knn_result = match_best_crop(adjusted_n, data.phosphorus, data.potassium, rain_forecast_7d)
     confidence = knn_result["confidence"]
     uncertainty = knn_result["uncertainty_flag"]
+    weather_context = knn_result["weather_context"]
 
-    # 8. BUILD RESPONSE ─────────────────────────────────────────────────────────────────
+    # ── 8. MATHEMATICAL YIELD PREDICTION ────────────────────────────────────────
+    # Yield potential is a weighted blend of AI Confidence (60%) + Soil Health (40%)
+    yield_potential_pct = (confidence * 0.6) + ((soil_health / 100.0) * 0.4)
+    yield_potential_pct = min(1.0, max(0.1, yield_potential_pct)) # bound 10%-100%
+    
+    base_yield = BASE_YIELDS.get(crop, 5.0)
+    expected_yield = round(base_yield * yield_potential_pct, 2)
+    yield_pct_display = round(yield_potential_pct * 100, 1)
+
+    # 9. BUILD RESPONSE ─────────────────────────────────────────────────────────────────
     return RotationResponse(
         recommended_crop=crop,
         reason=reason,
         soil_health_score=round(soil_health, 1),
         confidence_score=confidence,
         uncertainty_flag=uncertainty,
+        weather_context=weather_context,
+        expected_yield_tons_ha=expected_yield,
+        yield_potential_pct=yield_pct_display,
         next_action=action,
         is_live_data=sensors_online,
     )

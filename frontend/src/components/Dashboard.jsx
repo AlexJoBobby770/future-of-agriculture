@@ -54,7 +54,7 @@ const ArcGauge = ({ value, max = 100, color, label, unit = '', size = 130 }) => 
 /* ----------------------------------------------------------
    Dashboard Component
    ---------------------------------------------------------- */
-const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode }) => {
+const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode, liveSensors }) => {
     const isCritical = waterDays < 5;
     const waterPct = Math.min((waterDays / 30) * 100, 100);
 
@@ -199,10 +199,21 @@ const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode }) => {
                                         <span>⚠️</span> {rotationAdvice.uncertainty_flag}
                                     </div>
                                 )}
+                                
+                                {rotationAdvice.weather_context && (
+                                    <div style={{
+                                        fontSize: '10px', color: '#2563eb', fontWeight: '600', marginBottom: '8px', 
+                                        padding: '4px 8px', background: 'rgba(37,99,235,0.08)', borderRadius: '6px',
+                                        display: 'inline-block'
+                                    }}>
+                                        {rotationAdvice.weather_context}
+                                    </div>
+                                )}
 
                                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6', margin: '0 0 4px 0' }}>
                                     {rotationAdvice.reason}
                                 </p>
+                                
                                 <div style={{
                                     marginTop: '10px', padding: '8px 12px', borderRadius: '8px',
                                     background: droughtMode ? '#fef2f2' : '#f0fdf4',
@@ -213,6 +224,50 @@ const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode }) => {
                                 }}>
                                     ▸ {rotationAdvice.next_action}
                                 </div>
+
+                                {/* YIELD PREDICTION METRICS */}
+                                {rotationAdvice.expected_yield_tons_ha !== undefined && (
+                                    <div style={{
+                                        marginTop: '16px',
+                                        padding: '12px 16px',
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, rgba(16,185,129,0.05), rgba(16,185,129,0.1))',
+                                        border: '1px solid rgba(16,185,129,0.2)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <div>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700', marginBottom: '4px' }}>
+                                                Projected Yield
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                                                <span style={{ fontSize: '24px', fontWeight: '800', fontFamily: "'JetBrains Mono', monospace", color: 'var(--vibrant-mint)' }}>
+                                                    {rotationAdvice.expected_yield_tons_ha}
+                                                </span>
+                                                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Tons/ha</span>
+                                            </div>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700', marginBottom: '4px' }}>
+                                                Yield Potential
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <div style={{ width: '60px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                                                    <div style={{ 
+                                                        width: `${rotationAdvice.yield_potential_pct}%`, 
+                                                        height: '100%', 
+                                                        background: rotationAdvice.yield_potential_pct > 80 ? 'var(--vibrant-mint)' : rotationAdvice.yield_potential_pct > 50 ? 'var(--warning)' : 'var(--danger)',
+                                                        transition: 'width 1s ease-in-out, background 1s ease-in-out'
+                                                    }} />
+                                                </div>
+                                                <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: "'JetBrains Mono', monospace" }}>
+                                                    {rotationAdvice.yield_potential_pct}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         ) : (
                             <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.7', margin: 0 }}>
@@ -227,12 +282,12 @@ const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode }) => {
             <div className="section-title">Field Metrics</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
                 {[
-                    { label: 'Soil pH', value: '6.2', unit: 'pH', icon: '⚗️', color: 'var(--info)' },
-                    { label: 'Temperature', value: '31°', unit: 'Celsius', icon: '🌡️', color: 'var(--warning)' },
-                    { label: 'Humidity', value: '72%', unit: 'Relative', icon: '💨', color: 'var(--purple)' },
-                    { label: 'UV Index', value: '8.4', unit: 'High', icon: '☀️', color: 'var(--danger)' },
+                    { label: 'Soil pH', value: liveSensors?.ph?.toFixed(1) ?? '--', unit: 'pH', icon: '⚗️', color: 'var(--info)' },
+                    { label: 'Temperature', value: liveSensors ? `${liveSensors.temperature.toFixed(1)}°` : '--', unit: 'Celsius', icon: '🌡️', color: 'var(--warning)' },
+                    { label: 'Moisture', value: liveSensors ? `${liveSensors.soil_moisture.toFixed(1)}%` : '--', unit: 'Soil Vol.', icon: '💧', color: 'var(--vibrant-mint)' },
+                    { label: 'Rain (7d)', value: liveSensors ? `${liveSensors.rain_mm.toFixed(0)}` : '--', unit: 'mm', icon: '🌧️', color: 'var(--purple)' },
                 ].map(({ label, value, unit, icon, color }) => (
-                    <div key={label} className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
+                    <div key={label} className="glass-card" style={{ padding: '16px', textAlign: 'center', transition: 'all 0.3s ease' }}>
                         <div style={{ fontSize: '22px', marginBottom: '8px' }}>{icon}</div>
                         <div style={{
                             fontFamily: "'JetBrains Mono', monospace",

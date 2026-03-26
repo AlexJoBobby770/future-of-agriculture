@@ -56,19 +56,19 @@ class AgriIoTSimulator:
         self.k = max(10, self.k)
 
     def get_packet(self):
-        weather = self.fetcher.get_live_reality()
-        self.simulate_physics(weather)
+        self.last_weather = self.fetcher.get_live_reality()
+        self.simulate_physics(self.last_weather)
 
         # Keys aligned with both Member 1 (API) and Member 2 (Success Matrix)
         return {
-            "timestamp": weather['timestamp'],
+            "timestamp": self.last_weather['timestamp'],
             "n": round(self.n, 2),
             "p": round(self.p, 2),
             "k": round(self.k, 2),
             "ph": round(self.ph, 2),
-            "temperature": weather['current']['temp_c'],
-            "soil_moisture": weather['current']['soil_moisture_pct'],
-            "rain_mm": weather['current']['rain']
+            "temperature": self.last_weather['current']['temp_c'],
+            "soil_moisture": self.last_weather['current']['soil_moisture_pct'],
+            "rain_mm": self.last_weather['current']['rain']
         }
 
     def write_live_sensors(self, packet):
@@ -77,6 +77,12 @@ class AgriIoTSimulator:
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, 'w') as f:
             json.dump(packet, f, indent=4)
+            
+        # Also write the raw weather payload for the rotation service
+        weather_path = os.path.join(os.path.dirname(__file__), 'data', 'live_weather.json')
+        if hasattr(self, 'last_weather') and self.last_weather:
+            with open(weather_path, 'w') as f:
+                json.dump(self.last_weather, f, indent=4)
 
 
 if __name__ == "__main__":

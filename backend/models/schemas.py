@@ -76,6 +76,9 @@ class RotationResponse(BaseModel):
     soil_health_score: float      # 0-100 composite score
     confidence_score: float       # 0.0–1.0 Softmax probability from KNN model
     uncertainty_flag: Optional[str] = None  # "Low Certainty - Soil Amendment Required" if < 0.5
+    weather_context: Optional[str] = None   # Climate context applied to KNN model
+    expected_yield_tons_ha: float # Predicted yield based on AI confidence and soil health
+    yield_potential_pct: float    # 0-100% indicating how close to max yield we are
     next_action: str              # What to do after this rotation
     is_live_data: bool            # True = live IoT sensors; False = simulated/fallback data
 

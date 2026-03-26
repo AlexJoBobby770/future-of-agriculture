@@ -6,6 +6,8 @@ Run with: uvicorn backend.main:app --reload
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import json
 
 from backend.routers import predict, rotation, market, encyclopedia  # ← ADD: encyclopedia
 
@@ -61,6 +63,23 @@ def root():
         "status": "✅ All systems operational",
     }
 
+
+@app.get("/sensors", tags=["System"])
+def get_sensors():
+    """Returns the live hardware simulation state."""
+    sensor_path = os.path.join(
+        os.path.dirname(__file__), "..", "integration", "data", "live_sensors.json"
+    )
+    if os.path.exists(sensor_path):
+        try:
+            with open(sensor_path, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {
+        "timestamp": "OFFLINE", "n": 46, "p": 36, "k": 49,
+        "ph": 6.2, "temperature": 30.0, "soil_moisture": 35.0, "rain_mm": 0.0
+    }
 
 @app.get("/health", tags=["System"])
 def health_check():

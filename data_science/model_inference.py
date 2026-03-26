@@ -41,6 +41,10 @@ _EPSILON = 1e-6
 # Lower = sharper (more confident), higher = more uniform
 _SOFTMAX_TEMPERATURE = 10.0
 
+# Define crop water sensitivities
+WATER_SENSITIVE_CROPS = ["Groundnut", "Mustard", "Horsegram"]
+HIGH_WATER_CROPS = ["Rice / Wheat", "Banana / Plantain"]
+
 
 def euclidean_distance(vec_a: list[float], vec_b: list[float]) -> float:
     """
@@ -108,25 +112,52 @@ def softmax_probabilities(
 
 
 def match_best_crop(
-    n: float, p: float, k: float
+    n: float, p: float, k: float, rain_forecast_7d: list[float] = None
 ) -> dict:
     """
-    Full KNN-style inference pipeline.
+    Full KNN-style inference pipeline with optional Climate Penalty system.
 
     Args:
         n: Current soil nitrogen (kg/ha or %)
         p: Current soil phosphorus
         k: Current soil potassium
+        rain_forecast_7d: Optional list of 7 daily rain predictions in mm.
 
     Returns:
         {
             "best_crop":       str,
             "confidence":      float,  # 0.0 – 1.0 (softmax probability)
             "uncertainty_flag": str | None,
+            "weather_context": str | None,
             "all_scores":      [{crop, distance, probability}, ...] (sorted best→worst)
         }
     """
     distances = compute_crop_distances(n, p, k)
+    weather_context = None
+    
+    # Apply Climate Penalties if forecast is available
+    if rain_forecast_7d:
+        total_rain = sum(rain_forecast_7d)
+        
+        for crop in distances:
+            # Rule 1: Flood Avoidance
+            if total_rain > 40:
+                weather_context = f"☁️ Factored heavy rain: {total_rain:.1f}mm expected"
+                if any(ws in crop for ws in WATER_SENSITIVE_CROPS):
+                    distances[crop] += 50.0  # Heavy penalty
+                elif any(hw in crop for hw in HIGH_WATER_CROPS):
+                    distances[crop] = max(0.1, distances[crop] - 15.0)  # Moderate boost
+                    
+            # Rule 2: Drought Prep
+            elif total_rain < 10:
+                weather_context = f"☀️ Factored severe dry spell: {total_rain:.1f}mm expected"
+                if any(hw in crop for hw in HIGH_WATER_CROPS):
+                    distances[crop] += 80.0  # Extreme penalty
+                elif any(ws in crop for ws in WATER_SENSITIVE_CROPS):
+                    distances[crop] = max(0.1, distances[crop] - 10.0)  # Moderate boost
+            else:
+                weather_context = f"🌤 Factored stable weather: {total_rain:.1f}mm expected"
+
     probabilities = softmax_probabilities(distances)
 
     # Sort by probability descending
@@ -152,5 +183,6 @@ def match_best_crop(
         "best_crop": best["crop"],
         "confidence": confidence,
         "uncertainty_flag": flag,
+        "weather_context": weather_context,
         "all_scores": ranked,
     }
