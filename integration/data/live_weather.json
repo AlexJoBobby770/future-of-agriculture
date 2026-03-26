@@ -1,7 +1,20 @@
 {
+    "timestamp": "2026-03-27 01:52:46",
     "current": {
-        "rain": 15.5,
-        "temperature": 24.2
+        "temp_c": 30.0,
+        "soil_moisture_pct": 35.0,
+        "evap_rate_mm": 0.3,
+        "sunlight_w_m2": 450.0,
+        "rain": 0.0
     },
-    "location": "Kochi"
+    "rain_forecast": [
+        0.0,
+        2.0,
+        5.0,
+        0.0,
+        10.0,
+        0.0,
+        0.0
+    ],
+    "status": "OFFLINE_FALLBACK (unsupported operand type(s) for *: 'NoneType' and 'int')"
 }

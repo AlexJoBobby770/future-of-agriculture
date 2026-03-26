@@ -1,0 +1,8 @@
+{
+    "commodity": "Paddy(Dhan)(Common)",
+    "market": "Kochi (Simulated)",
+    "price": 1950.0,
+    "unit": "INR/Quintal",
+    "date": "27/03/2026",
+    "status": "FALLBACK (No local records)"
+}
