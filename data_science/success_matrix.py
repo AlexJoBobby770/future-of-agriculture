@@ -13,3 +13,13 @@ def get_live_score():
         return round(min(100, final_score), 1)
     except FileNotFoundError:
         return 0.0 # Data hasn't been generated yet
+
+def calculate_leaching_impact(current_n, rain_mm):
+    """
+    Member 3's Logic: Heavy rain washes away Nitrogen.
+    If rain > 10mm, Nitrogen drops by 10%.
+    """
+    if rain_mm > 10:
+        leached_n = current_n * 0.90 # 10% loss
+        return round(leached_n, 2), "⚠️ LEACHING DETECTED: Heavy rain is washing away Nitrogen."
+    return current_n, "✅ Soil stable."

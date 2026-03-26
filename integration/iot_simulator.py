@@ -20,6 +20,19 @@ def generate_sensor_data():
         json.dump(data, f, indent=4)
     return data
 
+def generate_smart_sensor_data(current_n, is_raining):
+    """
+    Member 3's Logic: If it rains, Nitrogen 'leaches' (washes away).
+    """
+    if is_raining:
+        # Nitrogen drops by 5% in heavy rain
+        new_n = current_n * 0.95 
+    else:
+        # Natural fluctuation
+        new_n = current_n + random.uniform(-1, 1)
+        
+    return round(max(0, new_n), 2)
+
 if __name__ == "__main__":
     while True:
         print(f"📡 Generating IoT Data: {generate_sensor_data()}")
