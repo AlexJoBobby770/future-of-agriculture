@@ -2,8 +2,8 @@
   "metadata": {
     "version": "1.0.0",
     "region": "South India / Tropical",
-    "last_updated": "2026-03-26",
-    "total_crops": 12,
+    "last_updated": "2026-03-27",
+    "total_crops": 15,
     "npk_unit": "kg/hectare",
     "notes": "N-P-K values are numeric (kg/ha) for direct use in logic engines and depletion math."
   },
@@ -398,6 +398,93 @@
       "soil_depletion_index": -0.50,
       "nitrogen_fixed_kg_per_ha": 80,
       "rotation_benefit": "Outstanding soil restorative crop — fixes up to 80 kg N/ha; ideal as a post-harvest cover crop to prevent erosion and replenish depleted fields before a main crop season."
+    },
+    {
+      "id": "cocoa_01",
+      "name": "Cocoa",
+      "scientific_name": "Theobroma cacao",
+      "optimal_conditions": {
+        "ph_range": { "min": 6.0, "max": 7.5 },
+        "temperature_celsius": { "min": 18, "max": 32 },
+        "nitrogen_req": { "label": "medium", "kg_per_ha": 80 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 40 },
+        "potassium_req": { "label": "high", "kg_per_ha": 120 }
+      },
+      "water_intensity": 5,
+      "water_req_mm_per_day": 4.0,
+      "growth_duration_days": 1825,
+      "pest_management": [
+        {
+          "pest_name": "Pod Borer",
+          "proactive_treatment": "Sleeve young pods with plastic covers; release Trichogramma chilonis wasps."
+        },
+        {
+          "pest_name": "Black Pod (Phytophthora)",
+          "proactive_treatment": "Prune for better aeration; apply Copper hydroxide spray before monsoon."
+        }
+      ],
+      "climate_resilience_tip": "Highly sensitive to drought and direct sun; must be grown under 50% shade (e.g., under Coconut or Arecanut). Provide basin irrigation during Jan-May.",
+      "companion_crops": ["coconut_01", "arecanut_01"],
+      "soil_depletion_index": 0.32,
+      "rotation_benefit": "Perennial; leaf mulch enriches soil with phosphorus."
+    },
+    {
+      "id": "pineapple_01",
+      "name": "Pineapple",
+      "scientific_name": "Ananas comosus",
+      "optimal_conditions": {
+        "ph_range": { "min": 4.5, "max": 5.5 },
+        "temperature_celsius": { "min": 22, "max": 32 },
+        "nitrogen_req": { "label": "high", "kg_per_ha": 150 },
+        "phosphorus_req": { "label": "medium", "kg_per_ha": 50 },
+        "potassium_req": { "label": "high", "kg_per_ha": 150 }
+      },
+      "water_intensity": 4,
+      "water_req_mm_per_day": 3.0,
+      "growth_duration_days": 450,
+      "pest_management": [
+        {
+          "pest_name": "Mealybug",
+          "proactive_treatment": "Control ant populations; use soap-water spray on fruit base."
+        },
+        {
+          "pest_name": "Heart Rot",
+          "proactive_treatment": "Ensure planting in well-drained raised beds; treat suckers with fungicide."
+        }
+      ],
+      "climate_resilience_tip": "Drought tolerant; responds well to mulching with high-density polythene or organic waste to suppress weeds and save water.",
+      "companion_crops": ["rubber_01", "coconut_01"],
+      "soil_depletion_index": 0.48,
+      "rotation_benefit": "Good cover crop for rubber plantations; prevents soil erosion on slopes."
+    },
+    {
+      "id": "nutmeg_01",
+      "name": "Nutmeg",
+      "scientific_name": "Myristica fragrans",
+      "optimal_conditions": {
+        "ph_range": { "min": 6.0, "max": 7.0 },
+        "temperature_celsius": { "min": 20, "max": 30 },
+        "nitrogen_req": { "label": "medium", "kg_per_ha": 60 },
+        "phosphorus_req": { "label": "low", "kg_per_ha": 30 },
+        "potassium_req": { "label": "medium", "kg_per_ha": 60 }
+      },
+      "water_intensity": 7,
+      "water_req_mm_per_day": 5.0,
+      "growth_duration_days": 2920,
+      "pest_management": [
+        {
+          "pest_name": "Fruit Rot",
+          "proactive_treatment": "Apply 1% Bordeaux mixture on fruit clusters during fruit set."
+        },
+        {
+          "pest_name": "Loranthus",
+          "proactive_treatment": "Regularly prune parasitic Loranthus growth from branches before seeding."
+        }
+      ],
+      "climate_resilience_tip": "Requires high humidity and consistent moisture; sensitive to strong winds. Best grown in mixed gardens with windbreakers.",
+      "companion_crops": ["coconut_01", "arecanut_01", "pepper_01"],
+      "soil_depletion_index": 0.25,
+      "rotation_benefit": "Low nutrient demand once established; provides year-round canopy cover."
     }
   ],
   "rotation_logic_rules": {
