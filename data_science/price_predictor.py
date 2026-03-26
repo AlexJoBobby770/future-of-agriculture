@@ -1,27 +1,28 @@
 import numpy as np
+import json
+import os
 
 def analyze_price_trend(price_history):
     """
-    Takes a list of last 7-30 days of prices.
-    Returns trend direction and a risk score.
+    Analyzes a list of prices and returns the trend.
+    Used by the 'Market Radar' feature.
     """
     if len(price_history) < 2:
-        return {"trend": "Stable", "slope": 0, "risk": "Low"}
-
+        return {"trend": "Stable", "slope": 0}
+    
     x = np.arange(len(price_history))
     y = np.array(price_history)
     
-    # Linear regression slope
+    # Linear Regression slope
     slope, intercept = np.polyfit(x, y, 1)
     
-    # Volatility (Standard Deviation)
-    volatility = np.std(y)
-    
     trend = "Upward" if slope > 0.5 else "Downward" if slope < -0.5 else "Stable"
-    risk = "High" if volatility > (np.mean(y) * 0.1) else "Low"
-
+    
     return {
         "trend": trend,
-        "slope": round(float(slope), 2),
-        "risk_score": risk
+        "slope": round(float(slope), 2)
     }
+
+def get_crop_advice(crop_name):
+    # This is a helper for Member 1
+    return f"Advice for {crop_name}: Monitor market volatility."
