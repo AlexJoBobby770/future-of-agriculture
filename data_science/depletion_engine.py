@@ -1,3 +1,6 @@
+import random
+import math
+
 
 class DepletionEngine:
     def __init__(self, reserve_margin=0.1):
@@ -50,3 +53,93 @@ class DepletionEngine:
             "p_days": days_to_threshold(current_p, daily_loss_p),
             "k_days": days_to_threshold(current_k, daily_loss_k)
         }
+
+    # ── Monte Carlo Stochastic Simulation ──────────────────────────────────
+    def monte_carlo_depletion(
+        self,
+        current_v: float,
+        daily_usage: float,
+        et_rate: float,
+        rain_forecast: list,
+        n_simulations: int = 100,
+        et_variance: float = 0.15,
+    ) -> dict:
+        """
+        Risk-Adjusted AI: Run N stochastic simulations where the
+        evapotranspiration rate varies by ±et_variance (default ±15%).
+
+        This accounts for climate volatility — instead of a single
+        deterministic depletion date, we get a probability distribution.
+
+        Returns:
+            {
+                "simulations":          int,     # Number of runs
+                "mean_days":            float,   # Average depletion date
+                "std_days":             float,   # Standard deviation
+                "p10_safe_deadline":    float,   # 10th percentile = Safe Harvest Deadline
+                "p50_median":           float,   # 50th percentile
+                "p90_optimistic":       float,   # 90th percentile (best case)
+                "worst_case":           float,   # Minimum across all runs
+                "best_case":            float,   # Maximum across all runs
+                "risk_assessment":      str,     # Human-readable risk label
+            }
+        """
+        results = []
+
+        for _ in range(n_simulations):
+            # Perturb ET rate by ±variance using uniform distribution
+            perturbed_et = et_rate * (1.0 + random.uniform(-et_variance, et_variance))
+
+            # Also perturb daily rain forecast slightly (±20%) to model rain uncertainty
+            perturbed_rain = [
+                max(0, r * (1.0 + random.uniform(-0.20, 0.20)))
+                for r in rain_forecast
+            ]
+
+            days = self.get_days_to_depletion(
+                current_v=current_v,
+                daily_usage=daily_usage,
+                et_rate=perturbed_et,
+                rain_forecast=perturbed_rain,
+            )
+            results.append(days)
+
+        # Sort for percentile calculation
+        results.sort()
+
+        # Statistics
+        mean_days = sum(results) / len(results)
+        variance = sum((x - mean_days) ** 2 for x in results) / len(results)
+        std_days = math.sqrt(variance)
+
+        # Percentiles (index-based)
+        def percentile(data, pct):
+            idx = int(len(data) * pct / 100)
+            idx = min(idx, len(data) - 1)
+            return data[idx]
+
+        p10 = percentile(results, 10)
+        p50 = percentile(results, 50)
+        p90 = percentile(results, 90)
+
+        # Risk assessment based on the 10th percentile (Safe Harvest Deadline)
+        if p10 < 3:
+            risk = "CRITICAL — Safe harvest deadline is under 3 days in 10% of climate scenarios"
+        elif p10 < 7:
+            risk = "HIGH — Significant risk of depletion within one week under adverse conditions"
+        elif p10 < 14:
+            risk = "MODERATE — Two-week buffer exists but climate volatility could erode it"
+        else:
+            risk = "LOW — Comfortable margin even under worst-case climate scenarios"
+
+        return {
+            "simulations": n_simulations,
+            "mean_days": round(mean_days, 1),
+            "std_days": round(std_days, 2),
+            "p10_safe_deadline": round(p10, 1),
+            "p50_median": round(p50, 1),
+            "p90_optimistic": round(p90, 1),
+            "worst_case": round(min(results), 1),
+            "best_case": round(max(results), 1),
+            "risk_assessment": risk,
+        }

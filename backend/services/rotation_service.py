@@ -30,6 +30,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from backend.models.schemas import RotationRequest, RotationResponse
 from data_science.success_matrix import get_live_score, calculate_leaching_impact
 from data_science.price_predictor import analyze_price_trend
+from data_science.model_inference import match_best_crop
 
 
 # ── Encyclopedia path ──────────────────────────────────────────────────────────
@@ -395,11 +396,18 @@ def recommend_rotation(
             "Proceed with the recommended crop and monitor weekly."
         )
 
-    # ── 7. BUILD RESPONSE ──────────────────────────────────────────────────────
+    # ── 7. KNN CONFIDENCE SCORING (Euclidean Distance + Softmax) ────────────
+    knn_result = match_best_crop(adjusted_n, data.phosphorus, data.potassium)
+    confidence = knn_result["confidence"]
+    uncertainty = knn_result["uncertainty_flag"]
+
+    # 8. BUILD RESPONSE ─────────────────────────────────────────────────────────────────
     return RotationResponse(
         recommended_crop=crop,
         reason=reason,
         soil_health_score=round(soil_health, 1),
+        confidence_score=confidence,
+        uncertainty_flag=uncertainty,
         next_action=action,
         is_live_data=sensors_online,
     )

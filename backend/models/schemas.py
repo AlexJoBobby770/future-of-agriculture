@@ -4,7 +4,7 @@ Pydantic models for request/response validation across all endpoints.
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 
 # ─────────────────────────────────────────────
@@ -34,6 +34,7 @@ class PredictResponse(BaseModel):
     status: str                   # "Normal" | "Drought Warning" | "Critical – Drought Mode"
     drought_mode: bool            # True when days < 3
     action: str                   # Human-readable advice
+    monte_carlo: Optional[Dict] = None  # Risk-adjusted stochastic analysis (100 simulations)
 
 
 # ─────────────────────────────────────────────
@@ -73,6 +74,8 @@ class RotationResponse(BaseModel):
     recommended_crop: str
     reason: str
     soil_health_score: float      # 0-100 composite score
+    confidence_score: float       # 0.0–1.0 Softmax probability from KNN model
+    uncertainty_flag: Optional[str] = None  # "Low Certainty - Soil Amendment Required" if < 0.5
     next_action: str              # What to do after this rotation
     is_live_data: bool            # True = live IoT sensors; False = simulated/fallback data
 

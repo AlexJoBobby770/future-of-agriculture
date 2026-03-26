@@ -35,6 +35,9 @@ const Predict = ({ apiBase = 'http://127.0.0.1:8000' }) => {
                 avgLoss: data.avg_daily_net_loss,
                 droughtMode: data.drought_mode,
                 totalWater: tankCapacity,
+                mc_safe_deadline: data.monte_carlo?.p10_safe_deadline,
+                mc_risk: data.monte_carlo?.risk_assessment,
+                mc_optimistic: data.monte_carlo?.p90_optimistic,
             });
         } catch (err) {
             setError(err.message);
@@ -294,6 +297,29 @@ const Predict = ({ apiBase = 'http://127.0.0.1:8000' }) => {
                             }}>
                                 ▸ {prediction.action}
                             </div>
+
+                            {/* Stochastic Risk Results */}
+                            {prediction.mc_safe_deadline && (
+                                <div style={{
+                                    marginTop: '12px', padding: '12px', borderRadius: '10px',
+                                    background: 'rgba(37,99,235,0.04)', border: '1px solid rgba(37,99,235,0.15)',
+                                }}>
+                                    <div style={{ fontSize: '10px', fontWeight: '800', color: '#2563eb', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+                                        📉 Stochastic Risk Analysis
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Safe Harvest Deadline (P10)</span>
+                                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#2563eb' }}>{prediction.mc_safe_deadline} days</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Optimistic window (P90)</span>
+                                        <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--trust-green)' }}>{prediction.mc_optimistic} days</span>
+                                    </div>
+                                    <div style={{ fontSize: '9px', lineHeight: '1.4', color: 'var(--text-secondary)', padding: '6px', background: '#fff', borderRadius: '6px', border: '1px solid rgba(37,99,235,0.08)' }}>
+                                        {prediction.mc_risk}
+                                    </div>
+                                </div>
+                            )}
 
                             {prediction.droughtMode && (
                                 <div style={{
