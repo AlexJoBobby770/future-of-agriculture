@@ -1,20 +1,20 @@
 {
-    "timestamp": "2026-03-27 02:53:53",
+    "timestamp": "2026-03-27 03:36:31",
     "current": {
-        "temp_c": 28.4,
+        "temp_c": 30.0,
         "soil_moisture_pct": 35.0,
-        "evap_rate_mm": 0.0,
-        "sunlight_w_m2": 0.0,
-        "rain": 1.5
+        "evap_rate_mm": 0.3,
+        "sunlight_w_m2": 450.0,
+        "rain": 0.0
     },
     "rain_forecast": [
-        1.5,
-        1.8,
+        0.0,
+        2.0,
         5.0,
-        4.2,
-        4.5,
-        7.5,
-        3.0
+        0.0,
+        10.0,
+        0.0,
+        0.0
     ],
-    "status": "LIVE"
+    "status": "OFFLINE_FALLBACK (MISSING_ENV_CONFIG)"
 }

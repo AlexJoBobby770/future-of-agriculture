@@ -1,24 +1,19 @@
 import React, { useState } from 'react';
+import { CROP_DATABASE } from '../data/cropData';
 
 const Crops = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedType, setSelectedType] = useState('All');
+    const [expandedId, setExpandedId] = useState(null);
 
-    const cropDatabase = [
-        { name: "Paddy (Rice)", type: "Cereal", icon: "🌾", tip: "Switch to SRI (System of Rice Intensification) during drought.", risk: "Medium", season: "Jun–Sep" },
-        { name: "Rubber",       type: "Cash Crop", icon: "🌳", tip: "Ensure proper drainage trenches before monsoon season.",        risk: "Low",    season: "Year-round" },
-        { name: "Black Pepper", type: "Spice",    icon: "🌿", tip: "Apply organic mulch once every 10 days to retain soil moisture.", risk: "Low",    season: "Jul–Feb" },
-        { name: "Banana",       type: "Fruit",    icon: "🍌", tip: "Prop mature plants with bamboo poles before high monsoon winds.", risk: "Medium", season: "Year-round" },
-        { name: "Cowpea",       type: "Legume",   icon: "🫘", tip: "Excellent for crop rotation to restore Nitrogen (N) to the soil.", risk: "Low",   season: "Nov–Feb" },
-        { name: "Coconut",      type: "Tree Crop",icon: "🥥", tip: "Intercropping with banana can increase farm income by 30%.",    risk: "Low",    season: "Year-round" },
-        { name: "Cardamom",     type: "Spice",    icon: "🌱", tip: "Requires shade — plant under taller trees. High-value export crop.", risk: "High", season: "Aug–Nov" },
-    ];
+    const cropDatabase = CROP_DATABASE;
 
     const types = ['All', ...new Set(cropDatabase.map(c => c.type))];
 
     const filteredCrops = cropDatabase.filter(crop => {
         const matchSearch = crop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            crop.type.toLowerCase().includes(searchTerm.toLowerCase());
+                            crop.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (crop.tip || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchType   = selectedType === 'All' || crop.type === selectedType;
         return matchSearch && matchType;
     });
@@ -29,11 +24,28 @@ const Crops = () => {
         high:   { color: '#dc2626', bg: '#fef2f2', border: 'rgba(220,38,38,0.2)' },
     }[risk.toLowerCase()]);
 
+    const getWaterColor = (water) => ({
+        low:    '#059669',
+        medium: '#d97706',
+        high:   '#2563eb',
+    }[(water || 'medium').toLowerCase()] || '#d97706');
+
+    const waterDots = (level) => {
+        const n = { low: 1, medium: 2, high: 3 }[(level || 'medium').toLowerCase()] || 2;
+        return Array.from({ length: 3 }).map((_, i) => (
+            <span key={i} style={{
+                width: '7px', height: '7px', borderRadius: '50%', display: 'inline-block',
+                marginRight: '2px',
+                background: i < n ? getWaterColor(level) : 'rgba(6,95,70,0.1)',
+            }} />
+        ));
+    };
+
     return (
         <div className="animate-fade-in">
 
             {/* Search + Filter */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
                     <span style={{
                         position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
@@ -42,7 +54,7 @@ const Crops = () => {
                     <input
                         id="crop-search"
                         type="text"
-                        placeholder="Search crops, types..."
+                        placeholder="Search crops, types, tips..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{
@@ -78,7 +90,7 @@ const Crops = () => {
 
             {/* Count */}
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '14px' }}>
-                Showing <span style={{ color: 'var(--trust-green)', fontWeight: '700' }}>{filteredCrops.length}</span> of {cropDatabase.length} assets
+                Showing <span style={{ color: 'var(--trust-green)', fontWeight: '700' }}>{filteredCrops.length}</span> of {cropDatabase.length} crops
             </div>
 
             {/* Cards Grid */}
@@ -88,12 +100,23 @@ const Crops = () => {
                 {filteredCrops.length > 0 ? (
                     filteredCrops.map((crop) => {
                         const rc = getRiskCfg(crop.risk);
+                        const isExpanded = expandedId === crop.id;
                         return (
-                            <div key={crop.name} className="glass-card" style={{
-                                padding: '18px', margin: 0, borderLeft: `3px solid ${rc.color}`,
-                            }}>
+                            <div
+                                key={crop.id}
+                                className="glass-card"
+                                onClick={() => setExpandedId(isExpanded ? null : crop.id)}
+                                style={{
+                                    padding: '18px', margin: 0,
+                                    borderLeft: `3px solid ${rc.color}`,
+                                    cursor: 'pointer',
+                                    transition: 'box-shadow 0.2s, transform 0.15s',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(6,95,70,0.12)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = ''; }}
+                            >
                                 {/* Header */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         <span style={{ fontSize: '22px' }}>{crop.icon}</span>
                                         <div>
@@ -112,9 +135,26 @@ const Crops = () => {
                                     }}>{crop.risk} Risk</span>
                                 </div>
 
+                                {/* Quick Stats Row */}
+                                <div style={{ display: 'flex', gap: '14px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                                    <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                                        🗓 <strong style={{ color: 'var(--text-secondary)' }}>{crop.season}</strong>
+                                    </div>
+                                    {crop.duration && (
+                                        <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                                            ⏱ <strong style={{ color: 'var(--text-secondary)' }}>
+                                                {crop.duration >= 365 ? `${(crop.duration/365).toFixed(0)}+ yr` : `${crop.duration}d`}
+                                            </strong>
+                                        </div>
+                                    )}
+                                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        💧 {waterDots(crop.water)}
+                                    </div>
+                                </div>
+
                                 {/* Tip */}
                                 <div style={{
-                                    padding: '10px 12px', borderRadius: '9px', marginBottom: '10px',
+                                    padding: '10px 12px', borderRadius: '9px', marginBottom: '8px',
                                     background: '#f0fdf4', border: '1px solid rgba(16,185,129,0.15)',
                                 }}>
                                     <div style={{ fontSize: '9px', fontWeight: '700', color: 'var(--trust-green)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '5px' }}>
@@ -125,15 +165,29 @@ const Crops = () => {
                                     </p>
                                 </div>
 
-                                {/* Season */}
-                                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>🗓 {crop.season}</div>
+                                {/* Expanded: NPK hint */}
+                                {isExpanded && crop.npk && (
+                                    <div style={{
+                                        padding: '8px 12px', borderRadius: '8px', marginTop: '4px',
+                                        background: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.15)',
+                                        fontSize: '11px', color: '#2563eb', fontWeight: '600',
+                                        display: 'flex', alignItems: 'center', gap: '6px',
+                                    }}>
+                                        🧪 Fertiliser Ratio (N-P-K): <strong>{crop.npk}</strong>
+                                    </div>
+                                )}
+
+                                {/* Expand cue */}
+                                <div style={{ textAlign: 'right', fontSize: '9px', color: 'var(--text-muted)', marginTop: '6px', opacity: 0.6, letterSpacing: '0.5px' }}>
+                                    {isExpanded ? '▲ less' : '▼ more'}
+                                </div>
                             </div>
                         );
                     })
                 ) : (
                     <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
                         <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔍</div>
-                        <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>No assets found</div>
+                        <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>No crops found</div>
                         <div style={{ fontSize: '12px' }}>No crops match "{searchTerm}"</div>
                     </div>
                 )}
