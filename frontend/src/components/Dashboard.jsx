@@ -183,11 +183,23 @@ const Dashboard = ({ waterDays, soilNPK, rotationAdvice, droughtMode }) => {
 
                         {rotationAdvice ? (
                             <>
-                                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7', margin: '0 0 4px 0' }}>
-                                    <strong style={{ color: 'var(--trust-green)' }}>
-                                        Recommended: {rotationAdvice.recommended_crop}
-                                    </strong>
-                                </p>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7', margin: 0 }}>
+                                        <strong style={{ color: 'var(--trust-green)' }}>
+                                            Recommended: {rotationAdvice.recommended_crop}
+                                        </strong>
+                                    </p>
+                                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600' }}>
+                                        AI Confidence: {(rotationAdvice.confidence_score * 100).toFixed(1)}%
+                                    </span>
+                                </div>
+                                
+                                {rotationAdvice.uncertainty_flag && (
+                                    <div style={{ fontSize: '10px', color: 'var(--danger)', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span>⚠️</span> {rotationAdvice.uncertainty_flag}
+                                    </div>
+                                )}
+
                                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6', margin: '0 0 4px 0' }}>
                                     {rotationAdvice.reason}
                                 </p>

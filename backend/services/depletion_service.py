@@ -58,10 +58,21 @@ def predict_depletion(data: PredictRequest) -> PredictResponse:
         drought_mode = False
         action = "✅ Levels stable. Monitor daily and review forecast every 3 days."
 
+    # ── Monte Carlo risk analysis (100 stochastic simulations) ──────────
+    mc_result = _engine.monte_carlo_depletion(
+        current_v=data.water_level,
+        daily_usage=data.daily_usage,
+        et_rate=data.evapotranspiration_rate,
+        rain_forecast=data.rain_forecast,
+        n_simulations=100,
+        et_variance=0.15,
+    )
+
     return PredictResponse(
         days_until_depletion=days,
         avg_daily_net_loss=avg_daily_net_loss,
         status=status,
         drought_mode=drought_mode,
         action=action,
+        monte_carlo=mc_result,
     )
