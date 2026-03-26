@@ -63,8 +63,9 @@ def get_market_insights(crop: str | None = None) -> MarketResponse:
     return MarketResponse(
         crop=chosen,
         current_price=current_price,
-        unit="₹/kg",
+        unit="\u20b9/kg",
         trend=analysis["trend"],
+        slope=analysis["slope"],
         risk_level=analysis["risk_score"],
         recommendation=recommendation,
     )
