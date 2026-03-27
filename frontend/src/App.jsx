@@ -202,14 +202,16 @@ export default function App() {
             <h1 className="page-title">{current.title}</h1>
             <p className="page-subtitle">{current.subtitle}</p>
           </div>
-          <div className="page-badge" style={{ border: loading ? '1px solid var(--warning-dim)' : '1px solid var(--mint-glow)' }}>
+          <div className="page-badge">
             <span style={{
-              color: loading ? 'var(--warning)' : 'var(--vibrant-mint)',
+              width: '6px', height: '6px', borderRadius: '50%',
+              background: loading ? '#F59E0B' : '#10B981',
               animation: loading ? 'none' : 'livePulse 2s infinite',
-              display: 'inline-block',
-              textShadow: loading ? 'none' : '0 0 8px var(--vibrant-mint)'
-            }}>◉</span>
-            <span style={{ fontWeight: '600' }}>{loading ? 'Fetching sensors...' : 'Live Stream Active'}</span>
+              display: 'inline-block', flexShrink: 0,
+            }}></span>
+            <span style={{ fontWeight: '500', color: 'var(--text-muted)' }}>
+              {loading ? 'Syncing...' : 'Live Sync'}
+            </span>
           </div>
         </div>
 

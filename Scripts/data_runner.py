@@ -1,6 +1,11 @@
 import time
 import json
 import os
+import sys
+
+# Add the parent directory (project root) to sys.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from integration.iot_simulator import AgriIoTSimulator
 from integration.meteo_client import KochiAgriFetcher
 from integration.market_client import MarketFetcher
@@ -12,7 +17,7 @@ MARKET_PATH = "integration/data/live_market.json"
 
 os.makedirs("integration/data", exist_ok=True)
 
-sim = AgriIoTSimulator(crop_id="paddy_01")
+sim = AgriIoTSimulator()
 weather_client = KochiAgriFetcher()
 market_client = MarketFetcher()
 
@@ -26,7 +31,17 @@ while True:
             json.dump(w_data, f, indent=4)
 
         # 2. Update Sensors (n, p, k keys)
-        s_data = sim.get_packet()
+        packet = sim.get_sensor_packet()
+        s_data = {
+            "timestamp": packet["header"]["timestamp"],
+            "n": packet["soil_nutrients"]["n"],
+            "p": packet["soil_nutrients"]["p"],
+            "k": packet["soil_nutrients"]["k"],
+            "ph": packet["soil_nutrients"]["ph"],
+            "temperature": packet["environment"]["air_temp_c"],
+            "soil_moisture": packet["environment"]["soil_moisture_pct"],
+            "rain_mm": w_data["current"]["rain"]
+        }
         with open(SENSOR_PATH, 'w') as f:
             json.dump(s_data, f, indent=4)
 

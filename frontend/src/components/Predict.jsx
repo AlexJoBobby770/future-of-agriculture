@@ -440,38 +440,6 @@ const Predict = ({ apiBase = 'http://127.0.0.1:8000' }) => {
                             locked={!demoMode}
                         />
 
-                        {/* Auto-run toggle */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px',
-                            padding: '10px 14px', borderRadius: '10px',
-                            background: autoRunning ? 'rgba(16,185,129,0.06)' : 'rgba(6,95,70,0.04)',
-                            border: `1px solid ${autoRunning ? 'rgba(16,185,129,0.2)' : 'rgba(6,95,70,0.1)'}`,
-                        }}>
-                            <div
-                                onClick={() => setAutoRunning(v => !v)}
-                                style={{
-                                    width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
-                                    background: autoRunning ? '#10b981' : '#d1d5db',
-                                    position: 'relative', transition: 'background 0.2s',
-                                }}
-                            >
-                                <div style={{
-                                    width: '16px', height: '16px', borderRadius: '50%', background: '#fff',
-                                    position: 'absolute', top: '2px',
-                                    left: autoRunning ? '18px' : '2px',
-                                    transition: 'left 0.2s',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                                }} />
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-primary)' }}>
-                                    Auto-Simulate
-                                </div>
-                                <div style={{ fontSize: '9px', color: 'var(--text-muted)' }}>
-                                    {autoRunning ? 'Re-runs automatically when live data updates' : 'Manual mode — click Run to simulate'}
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Manual run button */}
                         <button
